@@ -1,0 +1,11 @@
+<!-- Placeholder wordmark — DESIGN.md §0.6. Replace with the client's vector logo. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 48" width="220" height="48" role="img" aria-label="RizSync Service Solution">
+  <g fill="none" stroke="#C9A24D" stroke-width="2">
+    <circle cx="24" cy="24" r="17" />
+    <circle cx="24" cy="24" r="10.5" stroke="#0FA3A3" />
+  </g>
+  <path d="M24 9.5v29M9.5 24h29" stroke="#0FA3A3" stroke-width="1.2" opacity=".55" />
+  <circle cx="24" cy="24" r="4.5" fill="#C9A24D" />
+  <text x="52" y="24" font-family="'Plus Jakarta Sans',system-ui,sans-serif" font-size="19" font-weight="700" fill="#FFFFFF" letter-spacing="-0.4">RizSync</text>
+  <text x="52" y="38" font-family="Inter,system-ui,sans-serif" font-size="8.5" font-weight="600" fill="#C9A24D" letter-spacing="2.2">SERVICE SOLUTION</text>
+</svg>
