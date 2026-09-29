@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, User } from 'lucide-react';
 import { Container } from '@/components/ui/container';
@@ -16,6 +17,19 @@ const avatars = ['bg-teal', 'bg-orange', 'bg-gold'];
 function HeroBackdrop() {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+      {/* 0 — photo: the artwork is dark on its left, so the copy sits there.
+          Overlays keep text contrast AA and stop it competing with the wheel. */}
+      <Image
+        src={siteConfig.heroImage}
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover object-[70%_center] opacity-50 xl:object-right xl:opacity-70"
+      />
+      <div className="absolute inset-0 bg-[linear-gradient(90deg,var(--navy)_0%,var(--navy)_38%,rgb(0_32_74/0.55)_68%,rgb(0_32_74/0.3)_100%)]" />
+      <div className="absolute inset-0 bg-gradient-to-t from-navy via-transparent to-navy/60" />
+
       {/* 1 — 48px grid, white at 4.5% */}
       <div className="pattern-grid absolute inset-0" />
 

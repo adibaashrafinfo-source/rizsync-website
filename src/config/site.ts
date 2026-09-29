@@ -29,7 +29,7 @@ export const siteConfig = {
   ogImage: '/opengraph-image',
 
   /** §0.7 — TODO(client): supply the Dhaka cityscape + circuitry artwork. */
-  heroImage: '/images/hero/hero-dhaka.webp',
+  heroImage: '/images/hero/hero-bg.webp',
 
   founded: '2021',
   /** §0.3 — rendered as "© 2021–{currentYear}". */

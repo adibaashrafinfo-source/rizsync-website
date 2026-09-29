@@ -24,13 +24,20 @@ export function AboutSplit() {
             <div className="relative mx-auto h-[360px] w-full max-w-[520px] sm:h-[420px] xl:h-[520px]">
               <div className="relative h-[92%] w-[90%] overflow-hidden rounded-panel bg-navy">
                 {about.photo ? (
-                  <Image
-                    src={about.photo}
-                    alt="The RizSync team at the Mirpur office"
-                    fill
-                    sizes="(max-width: 1024px) 90vw, 470px"
-                    className="object-cover"
-                  />
+                  <>
+                    <Image
+                      src={about.photo}
+                      alt={about.photoAlt}
+                      fill
+                      sizes="(max-width: 1024px) 90vw, 470px"
+                      className="object-cover object-top"
+                    />
+                    {/* Navy fade at the foot so the floating cards sit on calm ground. */}
+                    <div
+                      aria-hidden
+                      className="absolute inset-0 bg-gradient-to-t from-navy/55 via-transparent to-transparent"
+                    />
+                  </>
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="flex h-24 w-24 items-center justify-center rounded-[22px] bg-white/[0.06] ring-1 ring-white/10">
@@ -38,7 +45,9 @@ export function AboutSplit() {
                     </span>
                   </div>
                 )}
-                <div aria-hidden className="pattern-star absolute inset-0 opacity-[0.14]" />
+                {about.photo ? null : (
+                  <div aria-hidden className="pattern-star absolute inset-0 opacity-[0.14]" />
+                )}
               </div>
 
               {/* Floating white card — top right */}

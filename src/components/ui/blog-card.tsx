@@ -51,7 +51,7 @@ export function BlogCard({
               fill
               priority={priority}
               sizes={featured ? '(max-width: 768px) 100vw, 50vw' : '(max-width: 1024px) 100vw, 33vw'}
-              className="object-cover object-left transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:group-hover:scale-100"
+              className="object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:group-hover:scale-100"
             />
           ) : null}
         </div>

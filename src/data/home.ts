@@ -62,8 +62,9 @@ export const about = {
   sinceYear: '2021',
   sinceLabel: "Serving Dhaka's businesses & families since",
   confidential: '100% Confidential',
-  /** TODO(client): team/office photo for the navy panel. */
-  photo: null as string | null,
+  /** Photo for the navy panel; set to null to fall back to the star pattern. */
+  photo: '/images/team/about-office.webp' as string | null,
+  photoAlt: 'A RizSync advisor at a desk overlooking the city skyline',
 };
 
 export const pillarsSection = {
