@@ -4,42 +4,43 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 /**
- * Button variants — DESIGN.md §4.5.
+ * Button variants — HOME_REDESIGN.md §2.4.
  *
- * The primary CTA is navy-on-gold, never white-on-gold: white on #C9A24D
- * fails WCAG AA.
- *
- * The hover "shine" is a ::before pseudo-element rather than an extra child
- * node, because `asChild` renders through Radix `Slot`, which forwards props
- * to a single child — an extra sibling would be silently dropped.
+ * Coloured backgrounds always carry navy text: white on gold/teal/orange
+ * fails WCAG AA. The v1 variant names (`primary`, `secondaryDark`,
+ * `secondaryLight`) are kept as aliases so inner pages keep compiling.
  */
+const gold =
+  'bg-gold text-navy font-bold shadow-gold hover:bg-[#d4ae5c] hover:shadow-[0_20px_40px_-14px_rgb(201_162_77/0.9)]';
+const outlineLight =
+  'border-[1.5px] border-white/30 bg-transparent text-white hover:border-white/60 hover:bg-white/[0.06]';
+const outlineDark =
+  'border-[1.5px] border-navy bg-transparent text-navy hover:bg-navy hover:text-white';
+
 const buttonVariants = cva(
-  'relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-btn font-semibold whitespace-nowrap transition-all duration-200 disabled:pointer-events-none disabled:opacity-60',
+  'inline-flex min-h-11 items-center justify-center gap-2 rounded-btn font-semibold whitespace-nowrap transition-all duration-200 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold disabled:pointer-events-none disabled:opacity-60 [&_svg]:shrink-0',
   {
     variants: {
       variant: {
-        primary: [
-          'bg-gold-500 text-navy-900 shadow-soft hover:bg-gold-600 hover:shadow-lift',
-          'before:pointer-events-none before:absolute before:inset-y-0 before:-left-1/3 before:w-1/3',
-          'before:-translate-x-[120%] before:bg-white/35 before:blur-[6px] before:content-[""]',
-          'hover:before:animate-[rz-shine_0.9s_ease-out]',
-        ],
-        secondaryDark:
-          'border-[1.5px] border-white/70 bg-transparent text-white hover:border-white hover:bg-white/10',
-        secondaryLight:
-          'border-[1.5px] border-navy-900/25 bg-transparent text-navy-900 hover:border-navy-900/60 hover:bg-navy-900/5',
-        navy: 'bg-navy-900 text-white shadow-soft hover:bg-navy-700 hover:shadow-lift',
-        whatsapp: 'bg-whatsapp text-white shadow-soft hover:brightness-95 hover:shadow-lift',
-        ghost: 'text-navy-900 hover:bg-navy-900/5',
+        gold,
+        navy: 'bg-navy text-white font-bold hover:bg-navy-700',
+        'outline-light': outlineLight,
+        'outline-dark': outlineDark,
+        whatsapp: outlineLight,
+        ghost: 'text-navy hover:bg-navy/5',
+        // v1 aliases
+        primary: gold,
+        secondaryDark: outlineLight,
+        secondaryLight: outlineDark,
       },
       size: {
+        sm: 'h-11 px-4 text-sm',
         md: 'h-12 px-6 text-[15px]',
-        sm: 'h-10 px-4 text-sm',
-        lg: 'h-14 px-8 text-base',
+        lg: 'h-[60px] px-7 text-base',
         icon: 'h-11 w-11 p-0',
       },
     },
-    defaultVariants: { variant: 'primary', size: 'md' },
+    defaultVariants: { variant: 'gold', size: 'md' },
   },
 );
 

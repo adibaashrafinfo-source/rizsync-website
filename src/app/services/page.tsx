@@ -10,7 +10,7 @@ import { FAQAccordion } from '@/components/ui/faq-accordion';
 import { Reveal } from '@/components/ui/reveal';
 import { PageHero } from '@/components/sections/page-hero';
 import { StaticWheel } from '@/components/sections/static-wheel';
-import { CtaBanner } from '@/components/sections/cta-banner';
+import { CtaBanner } from '@/components/home/cta-banner';
 import { JsonLd } from '@/components/seo/json-ld';
 import { services } from '@/data/services';
 import { generalFaqs } from '@/data/faqs';

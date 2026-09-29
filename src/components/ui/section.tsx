@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 import { Container } from './container';
 
-/** Section vertical rhythm: 64px mobile / 96px desktop (§4.3). */
+/** Section rhythm — 56px mobile, 72px tablet, 112px desktop (§2.3). */
 export function Section({
   id,
   className,
@@ -19,7 +19,11 @@ export function Section({
   labelledBy?: string;
 }) {
   return (
-    <section id={id} aria-labelledby={labelledBy} className={cn('py-16 md:py-24', className)}>
+    <section
+      id={id}
+      aria-labelledby={labelledBy}
+      className={cn('py-14 md:py-[72px] xl:py-28', className)}
+    >
       {bleed ? children : <Container className={containerClassName}>{children}</Container>}
     </section>
   );

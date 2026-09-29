@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { pageMetadata } from '@/lib/seo';
 import { Clock, Mail, MapPin, Phone } from 'lucide-react';
@@ -7,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { WhatsAppIcon } from '@/components/ui/social-icons';
 import { PageHero } from '@/components/sections/page-hero';
 import { OfficeMap } from '@/components/sections/office-map';
-import { ContactFormPanel } from '@/components/forms/contact-form-panel';
+import { ConsultationFormBoundary } from '@/components/forms/consultation-form-boundary';
 import { JsonLd } from '@/components/seo/json-ld';
 import { siteConfig } from '@/config/site';
 import { breadcrumbSchema } from '@/lib/schema';
@@ -109,13 +108,7 @@ export default function ContactPage() {
             </p>
 
             <div className="mt-8">
-              <Suspense
-                fallback={
-                  <div className="h-[720px] animate-pulse rounded-card border border-line bg-mist" />
-                }
-              >
-                <ContactFormPanel />
-              </Suspense>
+              <ConsultationFormBoundary />
             </div>
           </div>
 

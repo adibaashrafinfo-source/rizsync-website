@@ -6,7 +6,7 @@ import { SectionHeading } from '@/components/ui/section-heading';
 import { BlogCard } from '@/components/ui/blog-card';
 import { PageHero } from '@/components/sections/page-hero';
 import { InsightsBrowser } from '@/components/sections/insights-browser';
-import { CtaBanner } from '@/components/sections/cta-banner';
+import { CtaBanner } from '@/components/home/cta-banner';
 import { JsonLd } from '@/components/seo/json-ld';
 import { getAllPosts, getCategoriesInUse, getFeaturedPost } from '@/lib/mdx';
 import { breadcrumbSchema } from '@/lib/schema';

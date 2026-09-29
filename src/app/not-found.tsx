@@ -17,7 +17,7 @@ export default function NotFound() {
 
       <Container className="relative">
         <div className="mx-auto max-w-2xl text-center">
-          <Eyebrow className="text-gold-500">Error 404</Eyebrow>
+          <Eyebrow onDark>Error 404</Eyebrow>
           <p className="mt-4 font-display text-[72px] leading-none font-bold text-white/15 md:text-[104px]">
             404
           </p>

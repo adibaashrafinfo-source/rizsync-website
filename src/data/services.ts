@@ -1,10 +1,10 @@
 import {
-  Banknote,
-  Building2,
-  Landmark,
+  Award,
+  BarChart3,
+  Briefcase,
   Cpu,
-  HeartHandshake,
-  Sparkles,
+  Home,
+  Landmark,
   type LucideIcon,
 } from 'lucide-react';
 import type { PillarColor } from '@/lib/pillar';
@@ -19,10 +19,23 @@ export interface Faq {
   answer: string;
 }
 
+/** The three pillars that get a card beside the hero wheel (HOME_REDESIGN.md §4.3). */
+export interface HeroCard {
+  title: string;
+  subtitle: string;
+  chips: string[];
+}
+
 export interface Service {
   slug: string;
-  /** Short label used in navigation, cards and the consultation Subject list. */
+  /** "01"–"06", shown on the pillar cards. */
+  number: string;
+  /** Full name — navigation, footer and the consultation Subject list. */
   title: string;
+  /** Compact name — wheel labels and the quick service bar. */
+  shortTitle: string;
+  /** Present only for the pillars with a card beside the hero wheel. */
+  heroCard?: HeroCard;
   /** Page heading — DESIGN.md §6.4 table. */
   h1: string;
   /** One-liner shown in the header mega-menu and wheel tooltips. */
@@ -31,8 +44,8 @@ export interface Service {
   intro: string;
   color: PillarColor;
   icon: LucideIcon;
-  /** Four bullets on the home-page pillar card. */
-  cardBullets: string[];
+  /** Four bullets on the home-page pillar card, joined with " · ". */
+  bullets: string[];
   /** "What We Handle" — icon cards on the sub-page. */
   items: ServiceContentItem[];
   /** "Why RizSync for this" — three bullets tied to the ethics values. */
@@ -48,14 +61,16 @@ export interface Service {
 export const services: Service[] = [
   {
     slug: 'finance-accounting',
+    number: '01',
     title: 'Finance, Accounting & Business Support',
+    shortTitle: 'Finance & Accounting',
     h1: 'Professional Finance, Accounting & Business Support',
     navDescription: 'Tax, VAT, treasury and reporting handled by qualified specialists.',
     intro:
       'Accurate books, compliant filings and clear numbers you can actually make decisions on. We run the finance function so you can run the business.',
     color: 'teal',
-    icon: Banknote,
-    cardBullets: [
+    icon: BarChart3,
+    bullets: [
       'Tax & VAT Compliance',
       'Treasury Operations',
       'Cash Flow Management',
@@ -138,14 +153,21 @@ export const services: Service[] = [
   },
   {
     slug: 'business-corporate',
+    number: '02',
     title: 'Business & Corporate Services',
+    shortTitle: 'Business & Corporate',
+    heroCard: {
+      title: 'Business & Corporate',
+      subtitle: 'Trust (Amanah)-based support',
+      chips: ['RJSC / Tax & VAT', 'Bangladesh Bank Filings', 'Corporate Docs', 'Compliance'],
+    },
     h1: 'Strategic Business & Corporate Services',
     navDescription: 'RJSC, company formation, secretarial work and regulatory compliance.',
     intro:
       'From incorporation to annual returns, we keep your company legally sound and your statutory records current — without you queuing at a single counter.',
     color: 'orange',
-    icon: Building2,
-    cardBullets: [
+    icon: Briefcase,
+    bullets: [
       'RJSC Registration & Filings',
       'Corporate Documentation',
       'Compliance & Regulatory Services',
@@ -228,14 +250,21 @@ export const services: Service[] = [
   },
   {
     slug: 'government-assistance',
+    number: '03',
     title: 'Government Service Assistance',
+    shortTitle: 'Government Assistance',
+    heroCard: {
+      title: 'Government Assistance',
+      subtitle: 'Ethical bureau-navigation',
+      chips: ['BRTA', 'DNCC / City Corp', 'Passport & Renewal', 'Land Fees & Tax'],
+    },
     h1: 'Efficient Government Service Assistance & Liaison',
     navDescription: 'BRTA, city corporation, passport and land matters, navigated ethically.',
     intro:
       'Public offices have rules, queues and paperwork. We know all three — and we work inside them, never around them.',
     color: 'teal',
     icon: Landmark,
-    cardBullets: [
+    bullets: [
       'BRTA Services (Vehicle, License)',
       'DNCC & DSCC Matters',
       'Passport Application & Renewal',
@@ -318,14 +347,16 @@ export const services: Service[] = [
   },
   {
     slug: 'digital-transformation',
+    number: '04',
     title: 'Digital & Business Transformation',
+    shortTitle: 'Digital Transformation',
     h1: 'Digital Transformation & Business Process Outsourcing (BPO)',
     navDescription: 'Automation, ERP support, cloud and AI, and a reliable back office.',
     intro:
       'Technology should remove work, not add a second system to maintain. We automate the repetitive parts of your operation and run what is left.',
     color: 'orange',
     icon: Cpu,
-    cardBullets: [
+    bullets: [
       'Digital Process Automation',
       'ERP & Accounting System Support',
       'Cloud Services & AI Integration',
@@ -408,14 +439,16 @@ export const services: Service[] = [
   },
   {
     slug: 'family-welfare',
+    number: '05',
     title: 'Family Welfare & Services',
+    shortTitle: 'Family Welfare',
     h1: 'Holistic Family Welfare & Financial Planning',
     navDescription: 'Family financial planning, wealth advisory and long-term security.',
     intro:
       'The same discipline we bring to a balance sheet, applied to a household: what you own, what it must provide for, and how to protect it.',
     color: 'teal',
-    icon: HeartHandshake,
-    cardBullets: [
+    icon: Home,
+    bullets: [
       'Family Financial Planning',
       'Wealth Assessment & Advisory',
       'Education & Retirement Planning',
@@ -498,14 +531,21 @@ export const services: Service[] = [
   },
   {
     slug: 'why-rizsync',
+    number: '06',
     title: 'Benefits & Value Proposition',
+    shortTitle: 'Benefits & Value',
+    heroCard: {
+      title: 'Benefits & Value',
+      subtitle: 'Just value delivery',
+      chips: ['Time Savings', 'Economy Saving', 'Expert Documentation', 'Tech Back-Office'],
+    },
     h1: 'Why Choose RizSync? Our Value Proposition',
     navDescription: 'What changes for you when one ethical partner holds it all.',
     intro:
       'Six specialisms, one relationship, one standard of conduct. Here is what that is actually worth to a business or a family.',
     color: 'gold',
-    icon: Sparkles,
-    cardBullets: [
+    icon: Award,
+    bullets: [
       'Significant Time Savings',
       'Expert Documentation',
       'Trusted Partner for Business & Family',

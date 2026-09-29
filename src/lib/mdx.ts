@@ -3,20 +3,11 @@ import path from 'node:path';
 import matter from 'gray-matter';
 import readingTime from 'reading-time';
 import { slugify } from '@/lib/utils';
+import { insightCategories } from '@/lib/categories';
+
+export { insightCategories, categoryColor, type InsightCategory } from '@/lib/categories';
 
 const CONTENT_DIR = path.join(process.cwd(), 'content', 'insights');
-
-/** The fixed category set — DESIGN.md §6.5. */
-export const insightCategories = [
-  'Tax & VAT',
-  'RJSC & Compliance',
-  'Government Services',
-  'Digital Transformation',
-  'Islamic Finance',
-  'Family Planning',
-] as const;
-
-export type InsightCategory = (typeof insightCategories)[number];
 
 export interface PostFrontmatter {
   title: string;

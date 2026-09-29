@@ -74,7 +74,7 @@ export default async function ArticlePage({
 
           <div className="mt-6 max-w-3xl">
             <Link href={`/insights/category/${post.categorySlug}`}>
-              <Eyebrow className="text-gold-500 transition-colors hover:text-gold-600">
+              <Eyebrow onDark className="transition-colors hover:text-white">
                 {post.category}
               </Eyebrow>
             </Link>
@@ -149,7 +149,7 @@ export default async function ArticlePage({
 
             {/* CTA box */}
             <div className="mt-12 overflow-hidden rounded-card border border-line bg-navy-900 p-8">
-              <Eyebrow className="text-gold-500">Need this handled?</Eyebrow>
+              <Eyebrow onDark>Need this handled?</Eyebrow>
               <h2 className="mt-2 text-xl leading-snug font-bold text-white md:text-2xl">
                 Talk it through with someone who does it every week
               </h2>

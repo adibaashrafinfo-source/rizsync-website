@@ -1,14 +1,16 @@
 import type { Metadata } from 'next';
 import { pageMetadata } from '@/lib/seo';
-import { Hero } from '@/components/home/hero';
-import { TrustStrip } from '@/components/sections/trust-strip';
-import { Pillars } from '@/components/sections/pillars';
-import { EthicalDifference } from '@/components/sections/ethical-difference';
-import { Process } from '@/components/sections/process';
-import { WhoWeServe } from '@/components/sections/who-we-serve';
-import { Testimonials } from '@/components/sections/testimonials';
-import { LatestInsights } from '@/components/sections/latest-insights';
-import { ConsultationCta } from '@/components/sections/consultation-cta';
+import { HeroSection } from '@/components/home/hero-section';
+import { QuickServiceBar } from '@/components/home/quick-service-bar';
+import { AboutSplit } from '@/components/home/about-split';
+import { PillarsGrid } from '@/components/home/pillars-grid';
+import { BenefitsBand } from '@/components/home/benefits-band';
+import { ValuesSection } from '@/components/home/values-section';
+import { ProcessSteps } from '@/components/home/process-steps';
+import { Testimonials } from '@/components/home/testimonials';
+import { CtaBanner } from '@/components/home/cta-banner';
+import { InsightsPreview } from '@/components/home/insights-preview';
+import { ConsultationSection } from '@/components/home/consultation-section';
 
 export const metadata: Metadata = pageMetadata({
   title: 'RizSync Business Solution | Unified Ethical Partner for Growth in Bangladesh',
@@ -17,18 +19,21 @@ export const metadata: Metadata = pageMetadata({
   path: '/',
 });
 
+/** Section order is fixed by HOME_REDESIGN.md §7. Header and Footer come from the root layout. */
 export default function HomePage() {
   return (
     <>
-      <Hero />
-      <TrustStrip />
-      <Pillars />
-      <EthicalDifference />
-      <Process />
-      <WhoWeServe />
+      <HeroSection />
+      <QuickServiceBar />
+      <AboutSplit />
+      <PillarsGrid />
+      <BenefitsBand />
+      <ValuesSection />
+      <ProcessSteps />
       <Testimonials />
-      <LatestInsights />
-      <ConsultationCta />
+      <CtaBanner className="pt-0 md:pt-0 xl:pt-0" />
+      <InsightsPreview />
+      <ConsultationSection />
     </>
   );
 }

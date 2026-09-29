@@ -10,7 +10,7 @@ import { Card } from '@/components/ui/card';
 import { Reveal } from '@/components/ui/reveal';
 import { LinkedInIcon } from '@/components/ui/social-icons';
 import { PageHero } from '@/components/sections/page-hero';
-import { CtaBanner } from '@/components/sections/cta-banner';
+import { CtaBanner } from '@/components/home/cta-banner';
 import { ValueCard } from '@/components/sections/value-card';
 import { JsonLd } from '@/components/seo/json-ld';
 import { ethicalValues } from '@/data/values';

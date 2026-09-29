@@ -97,75 +97,97 @@ Also generate: `/sitemap.xml`, `/robots.txt`, `/manifest.webmanifest`, dynamic O
 
 ---
 
-## 4. Design System (Tokens)
+## 4. Design System (Tokens) — v2 "Corporate Premium"
+
+> Updated to `HOME_REDESIGN.md` §2. The v2 system applies site-wide; the full
+> token list lives in `src/styles/globals.css` (plain CSS variables with the
+> spec names, plus the same values in the Tailwind `@theme`).
 
 ### 4.1 Color palette
 
+**Brand (client brief — do not change)**
+
 | Token | Hex | Use |
 |-------|-----|-----|
-| `--navy-900` | `#00204A` | Header, footer, primary dark surfaces (from brief) |
-| `--navy-950` | `#001533` | Deeper gradient stop, overlays |
-| `--navy-700` | `#0B3A75` | Hover on dark, secondary dark |
-| `--teal-500` | `#0FA3A3` | Finance / Government / Benefits pillar color |
-| `--teal-600` | `#0B8585` | Teal hover / text on light |
-| `--teal-50`  | `#E6F6F6` | Teal tinted backgrounds |
-| `--orange-500` | `#F28C28` | Business pillar color |
-| `--orange-600` | `#D9731A` | Orange hover |
-| `--orange-50`  | `#FEF3E7` | Orange tinted backgrounds |
-| `--gold-500` | `#C9A24D` | Primary CTA (gold/bronze), fine accent lines, ethics badges |
-| `--gold-600` | `#AD8836` | CTA hover |
-| `--ink-900` | `#0F172A` | Body text on light |
-| `--ink-600` | `#475569` | Secondary text |
-| `--line`    | `#E2E8F0` | Borders, dividers |
-| `--paper`   | `#FFFFFF` | Base background |
-| `--mist`    | `#F5F7FA` | Alternating section background |
+| `--navy` | `#00204A` | Header, footer, hero, featured cards, navy buttons |
+| `--teal` | `#0FA3A3` | Finance / Government / Family pillar — shapes, tiles, arcs |
+| `--orange` | `#F28C28` | Business / Digital pillar — shapes, tiles, arcs |
+| `--gold` | `#C9A24D` | Primary CTA background, Benefits pillar, accents |
 
-**Contrast rules:** White text on navy ✔. Navy text on gold CTA (`#00204A` on `#C9A24D`) — use this, NOT white on gold (fails WCAG). Teal/orange are for shapes, borders, icons, and large text; for small text on white use the `-600` shades.
+**Accessible ink shades — the only teal/orange/gold allowed for small text on white**
 
-**Pillar color mapping (used everywhere — wheel, cards, service pages):**
+| Token | Hex | | Token | Hex |
+|-------|-----|-|-------|-----|
+| `--teal-ink` | `#0B7A7A` | | `--orange-icon` | `#C4650D` |
+| `--orange-ink` | `#B35A0B` | | `--gold-ink` | `#8E6F24` |
 
-| Pillar | Color |
-|--------|-------|
-| Finance, Accounting & Business Support | Teal |
-| Business & Corporate Services | Orange |
-| Government Service Assistance | Teal |
-| Digital & Business Transformation | Orange |
-| Family Welfare & Services | Teal |
-| Benefits & Value Proposition | Gold (special — it's the "why us" pillar) |
+**Tints** — `--teal-50 #E6F6F6` · `--orange-50 #FEF1E4` · `--orange-25 #FFF8F1` · `--gold-50 #F8F1E1`
+
+**On navy** — `--on-navy #FFFFFF` · `--on-navy-muted #C7D3E3` · `--on-navy-soft #B5C3D6` ·
+`--on-navy-faint #9FB3CF` · `--teal-on-navy #5FD3D3` (eyebrows) · chip text
+`--teal-chip-text #7FDADA`, `--orange-chip-text #F7B877`, `--gold-chip-text #E4C98A`
+
+**Neutrals** — `--ink #0F172A` · `--ink-2 #1E293B` · `--body #475569` · `--muted #64748B` ·
+`--line #E6EBF2` · `--line-2 #D6DEE8` · `--mist #F5F7FA` · `--white #FFFFFF`
+
+**Contrast rules:** buttons on gold / teal / orange use **navy text**, never white. Small
+text on white uses the `-ink` shades, never raw teal/orange. Raw teal/orange/gold are for
+shapes, icon tiles, arcs, number circles and large display text.
+
+**Pillar mapping (used everywhere):**
+
+| # | Pillar | Color | lucide icon |
+|---|--------|-------|-------------|
+| 01 | Finance, Accounting & Business Support | Teal | `BarChart3` |
+| 02 | Business & Corporate Services | Orange | `Briefcase` |
+| 03 | Government Service Assistance | Teal | `Landmark` |
+| 04 | Digital & Business Transformation | Orange | `Cpu` |
+| 05 | Family Welfare & Services | Teal | `Home` |
+| 06 | Benefits & Value Proposition | Gold | `Award` |
 
 ### 4.2 Typography
 
-| Role | Font | Weight | Size (desktop / mobile) |
-|------|------|--------|------------------------|
-| Display / H1 | **Plus Jakarta Sans** | 700 | 56px / 36px, line-height 1.1, tracking -0.02em |
-| H2 | Plus Jakarta Sans | 700 | 40px / 28px |
-| H3 | Plus Jakarta Sans | 600 | 24px / 20px |
-| Body | **Inter** | 400 | 17px / 16px, line-height 1.7 |
-| Small / meta | Inter | 500 | 14px |
-| Eyebrow labels | Inter | 600 | 13px, UPPERCASE, tracking 0.12em, gold color |
-| Arabic ethics terms (عدل، أمانة، شفافية، نفع) | **Amiri** | 400/700 | Decorative, used only in the Values section |
+Loaded with `next/font/google`: **Sora** (display, 600/700/800), **DM Sans** (body,
+400–700), **Amiri** (Arabic ethics terms, latin + arabic subsets).
 
-### 4.3 Spacing, radius, shadow
-- Container: `max-w-7xl` (1280px), side padding 24px mobile / 32px desktop.
-- Section vertical padding: 96px desktop / 64px mobile.
-- 8px spacing grid.
-- Radius: cards `16px`, buttons `10px`, pills `999px`, service bubbles `24px`.
-- Shadows: soft only — `0 10px 30px -12px rgba(0,32,74,0.18)`. On hover: lift 4px + slightly stronger shadow.
-- Borders: 1px `--line`; pillar cards get a 3px top border in pillar color.
+| Token | Font | Desktop / mobile | Weight | Line-height | Tracking |
+|-------|------|------------------|--------|-------------|----------|
+| `display` (Hero H1) | Sora | 70 / 40px | 700 | 1.04 | -0.035em |
+| `h2` | Sora | 46 / 30px (some sections 42) | 700 | 1.12 | -0.03em |
+| `h3-card` | Sora | 22 / 20px | 700 | 1.25 | — |
+| `h4` | Sora | 17–20px | 700 | 1.2 | — |
+| `lead` | DM Sans | 20 / 17px | 400 | 1.6 | — |
+| `body` | DM Sans | 16–18 / 15–16px | 400 | 1.7 | — |
+| `eyebrow` | DM Sans | 13px UPPERCASE | 700 | — | 0.16em, `--teal-ink` (on navy `--teal-on-navy`) |
+| `small` | DM Sans | 13–14px | 500–600 | — | — |
+| `arabic` | Amiri | 46px (values) | 400 | 1.2 | — |
+
+### 4.3 Shape, spacing, depth
+- Container: max content 1280px; side padding 80px desktop / 32px tablet / 20px mobile.
+- Section padding: 104–128px desktop, 72px tablet, 56px mobile.
+- Radius: buttons & inputs **12px**, chips **6–10px**, cards **20px**, panels **24–28px**, pills **999px**.
+- Shadows: floating white `0 30px 70px -24px rgba(0,32,74,.35)`; featured navy card
+  `0 30px 60px -24px rgba(0,32,74,.6)`; gold CTA glow `0 16px 36px -14px rgba(201,162,77,.8)`.
+- Card hover (all clickable cards): `translateY(-4px)`, border → `--line-2`, shadow
+  `0 24px 48px -24px rgba(0,32,74,.25)`, 200ms ease-out.
+- Cards: 20px radius, 1px `--line` border, soft navy shadow, coloured icon tile.
 
 ### 4.4 Motifs & imagery
-- **Circuit-line motif:** thin gold/teal line patterns (SVG) used sparingly on dark sections, echoing the hero's "digital circuitry over Dhaka".
-- **Subtle Islamic geometric pattern** (8-point star lattice) at 4–6% opacity on the About → Values section and footer only. Elegant, not decorative overload.
-- Photography: real Dhaka skyline, professionals in modest business attire, documents/desks. No cartoon illustrations.
-- Icons: lucide line icons, 1.5px stroke, in pillar colors.
+- Hero: navy with a 48px white grid at 4.5%, teal/orange glow circles, thin circuit lines.
+- 8-point star lattice (gold) at low opacity on the About visual, Values and footer.
+- Icons: lucide-react, stroke 2, inside square tiles (48/60px, radius 12–16px) on a tint.
+- Photography: real Dhaka / professionals / documents only. No cartoon illustrations.
 
 ### 4.5 Buttons
 | Variant | Style |
 |---------|-------|
-| Primary (CTA) | Gold bg, navy text, 600 weight, 48px height, subtle shine on hover |
-| Secondary | Transparent, 1.5px white border (on dark) or navy border (on light) |
-| WhatsApp | `#25D366` bg, white text, WhatsApp icon — used in floating button & contact page |
-| Link | Teal-600 text, arrow icon slides 4px on hover |
+| `gold` (primary CTA) | gold bg, navy text, 700, h-60 hero / h-48 header, radius 12, gold glow, arrow icon |
+| `navy` | navy bg, white text |
+| `outline-light` | 1.5px `rgba(255,255,255,.3)` border, white text (on navy) |
+| `outline-dark` | 1.5px navy border, navy text |
+| `whatsapp` | outline-light with the WhatsApp icon in `#25D366` |
+
+All buttons: 2px gold focus ring offset 2px, minimum height 44px.
 
 ---
 
@@ -207,6 +229,8 @@ Bottom-right, 56px circle, WhatsApp green, pre-filled message: "Assalamu Alaikum
 ## 6. Page Specifications
 
 ### 6.1 Home Page — `/`
+
+> **Superseded by `HOME_REDESIGN.md` §4 (v2).** The layout below is the v1 home page and is kept for history only.
 **Meta title:** RizSync Business Solution | Unified Ethical Partner for Growth in Bangladesh
 **Meta description:** RizSync is a multi-disciplinary platform providing expert corporate services, government assistance, and digital transformation, guided by the Quranic business model of trust and integrity.
 

@@ -4,12 +4,13 @@ import * as React from 'react';
 import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+/** HOME_REDESIGN.md §4.13: 52px, 12px radius, 1.5px border, teal-ink focus + 3px ring. */
 const base =
-  'w-full rounded-btn border border-line bg-paper px-4 text-[15px] text-ink-900 shadow-sm outline-none transition-colors placeholder:text-ink-600/60 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/25 disabled:opacity-60 aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500/25';
+  'w-full rounded-btn border-[1.5px] border-line-2 bg-white px-4 text-[15px] text-ink outline-none focus-visible:outline-none transition-[border-color,box-shadow] placeholder:text-muted/70 focus:border-teal-ink focus:ring-[3px] focus:ring-teal/15 disabled:opacity-60 aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500/15';
 
 export const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<'input'>>(
   ({ className, ...props }, ref) => (
-    <input ref={ref} className={cn(base, 'h-12', className)} {...props} />
+    <input ref={ref} className={cn(base, 'h-[52px]', className)} {...props} />
   ),
 );
 Input.displayName = 'Input';
@@ -31,7 +32,7 @@ export const Select = React.forwardRef<HTMLSelectElement, React.ComponentProps<'
     <div className="relative">
       <select
         ref={ref}
-        className={cn(base, 'h-12 appearance-none pr-10', className)}
+        className={cn(base, 'h-[52px] appearance-none pr-10', className)}
         {...props}
       >
         {children}
@@ -52,7 +53,7 @@ export function Label({
   ...props
 }: React.ComponentProps<'label'> & { required?: boolean }) {
   return (
-    <label className={cn('text-sm font-semibold text-navy-900', className)} {...props}>
+    <label className={cn('text-sm font-semibold text-navy', className)} {...props}>
       {children}
       {required ? (
         <span className="ml-0.5 text-red-600" aria-hidden>

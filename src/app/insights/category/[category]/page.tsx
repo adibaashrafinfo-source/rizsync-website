@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { Section } from '@/components/ui/section';
 import { BlogCard } from '@/components/ui/blog-card';
 import { PageHero } from '@/components/sections/page-hero';
-import { CtaBanner } from '@/components/sections/cta-banner';
+import { CtaBanner } from '@/components/home/cta-banner';
 import { JsonLd } from '@/components/seo/json-ld';
 import { getCategoriesInUse, getPostsByCategorySlug, insightCategories } from '@/lib/mdx';
 import { breadcrumbSchema } from '@/lib/schema';

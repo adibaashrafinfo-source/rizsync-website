@@ -4,38 +4,37 @@ import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useSearchParams } from 'next/navigation';
-import { AlertCircle, CheckCircle2, Loader2, Phone } from 'lucide-react';
+import { AlertCircle, ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Field, FieldError, Input, Label, Select, Textarea } from '@/components/ui/field';
 import { Turnstile } from '@/components/forms/turnstile';
 import { WhatsAppIcon } from '@/components/ui/social-icons';
-import {
-  clientTypes,
-  consultationSchema,
-  preferredContacts,
-  type ConsultationInput,
-} from '@/lib/validators';
+import { clientTypes, consultationSchema, type ConsultationInput } from '@/lib/validators';
 import { services, subjectOptions } from '@/data/services';
+import { consultationSection } from '@/data/home';
 import { siteConfig } from '@/config/site';
 import { trackLead } from '@/lib/events';
 import { cn } from '@/lib/utils';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
+type ClientType = (typeof clientTypes)[number];
 
 /**
- * Subject options narrow to the pathways that make sense for the selected
- * client type — the "clear pathways for different customer types" in §6.6.5.
+ * Individuals and families see only the pathways that apply to them — the
+ * "clear pathways for different customer types" in DESIGN.md §6.6.5.
  */
 const INDIVIDUAL_SUBJECTS = new Set(['family-welfare', 'government-assistance', 'why-rizsync']);
 
+/**
+ * Consultation form — HOME_REDESIGN.md §4.13 layout, DESIGN.md §7 behaviour.
+ * Shared by the home page, every service page and /contact.
+ */
 export function ConsultationForm({
-  /** Pre-selects the Subject, e.g. from a service sub-page. */
+  /** Pre-selects the Subject, e.g. from a service page. */
   defaultSubject,
-  defaultClientType,
   className,
 }: {
   defaultSubject?: string;
-  defaultClientType?: (typeof clientTypes)[number];
   className?: string;
 }) {
   const searchParams = useSearchParams();
@@ -50,9 +49,7 @@ export function ConsultationForm({
   const queryService = searchParams.get('service');
   const initialSubject = useMemo(() => {
     const candidate = queryService || defaultSubject;
-    return candidate && services.some((service) => service.slug === candidate)
-      ? candidate
-      : '';
+    return candidate && services.some((service) => service.slug === candidate) ? candidate : '';
   }, [queryService, defaultSubject]);
 
   const {
@@ -70,10 +67,9 @@ export function ConsultationForm({
       company: '',
       email: '',
       phone: '',
-      clientType: defaultClientType ?? ('' as never),
+      clientType: 'Business',
       subject: (initialSubject || '') as never,
       message: '',
-      preferredContact: undefined,
       consent: false as never,
       website: '',
     },
@@ -83,11 +79,7 @@ export function ConsultationForm({
     if (initialSubject) setValue('subject', initialSubject as never);
   }, [initialSubject, setValue]);
 
-  useEffect(() => {
-    if (defaultClientType) setValue('clientType', defaultClientType);
-  }, [defaultClientType, setValue]);
-
-  const clientType = watch('clientType');
+  const clientType = watch('clientType') as ClientType;
   const visibleSubjects =
     clientType === 'Individual & Family'
       ? subjectOptions.filter(
@@ -95,10 +87,16 @@ export function ConsultationForm({
         )
       : subjectOptions;
 
-  /**
-   * Runs when client-side validation rejects the form. Without this a field
-   * that renders no inline error would make the submit button look inert.
-   */
+  // Switching to Individual & Family can hide the chosen subject; clear it
+  // rather than submit a value the visitor can no longer see.
+  const subject = watch('subject');
+  useEffect(() => {
+    if (subject && !visibleSubjects.some((option) => option.value === subject)) {
+      setValue('subject', '' as never);
+    }
+  }, [subject, visibleSubjects, setValue]);
+
+  /** Validation failed — never let the button look inert (see §7 notes). */
   const onInvalid = (invalid: Record<string, unknown>) => {
     const first = Object.keys(invalid)[0] as keyof ConsultationInput | undefined;
     setServerError('Please check the highlighted fields and try again.');
@@ -106,7 +104,7 @@ export function ConsultationForm({
       try {
         setFocus(first);
       } catch {
-        // Hidden or unregistered field — the banner above is enough.
+        // Hidden or unregistered field — the banner is enough.
       }
     }
   };
@@ -121,7 +119,6 @@ export function ConsultationForm({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...values, turnstileToken }),
       });
-
       const payload = (await response.json().catch(() => ({}))) as { error?: string };
 
       if (!response.ok) {
@@ -140,47 +137,36 @@ export function ConsultationForm({
       setTurnstileToken('');
       setTurnstileReset((count) => count + 1);
     } catch {
-      setServerError(
-        'We could not reach our server. Please check your connection, or call us directly.',
-      );
+      setServerError('We could not reach our server. Please check your connection, or call us directly.');
       setStatus('error');
       setTurnstileReset((count) => count + 1);
     }
   };
 
+  const cardClass = cn(
+    'rounded-panel border border-line bg-white p-6 shadow-float sm:p-8 xl:p-10',
+    className,
+  );
+
   if (status === 'success') {
     return (
-      <div
-        className={cn(
-          'rounded-card border border-line bg-paper p-8 text-center shadow-soft',
-          className,
-        )}
-        role="status"
-      >
-        <CheckCircle2
-          aria-hidden
-          className="mx-auto h-14 w-14 text-teal-600"
-          strokeWidth={1.5}
-        />
-        <h3 className="mt-5 text-xl font-semibold text-navy-900">
+      <div className={cn(cardClass, 'text-center')} role="status">
+        <CheckCircle2 aria-hidden className="mx-auto h-14 w-14 text-teal-ink" strokeWidth={1.75} />
+        <h3 className="mt-5 font-display text-xl font-bold text-navy">
           Thank you — your request is with us.
         </h3>
         <p className="mx-auto mt-3 max-w-md text-ink-600">
-          We&rsquo;ll contact you within 1 business day, In sh&#257;&rsquo; All&#257;h. If your
-          matter is urgent, WhatsApp is the fastest way to reach us.
+          We&rsquo;ll contact you within 1 business day, In sh&#257;&rsquo; All&#257;h. If your matter
+          is urgent, WhatsApp is the fastest way to reach us.
         </p>
         <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-          <Button asChild variant="whatsapp">
-            <a
-              href={siteConfig.contact.whatsappPrefilled}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <WhatsAppIcon className="h-5 w-5" />
+          <Button asChild variant="navy">
+            <a href={siteConfig.contact.whatsappPrefilled} target="_blank" rel="noopener noreferrer">
+              <WhatsAppIcon className="h-5 w-5 text-whatsapp" />
               Continue on WhatsApp
             </a>
           </Button>
-          <Button variant="secondaryLight" onClick={() => setStatus('idle')}>
+          <Button variant="outline-dark" onClick={() => setStatus('idle')}>
             Send another message
           </Button>
         </div>
@@ -189,19 +175,31 @@ export function ConsultationForm({
   }
 
   return (
-    <form
-      data-consultation-form
-      noValidate
-      onSubmit={handleSubmit(onSubmit, onInvalid)}
-      className={cn(
-        'rounded-card border border-line bg-paper p-6 shadow-soft md:p-8',
-        className,
-      )}
-    >
-      <div className="grid gap-5 sm:grid-cols-2">
+    <form data-consultation-form noValidate onSubmit={handleSubmit(onSubmit, onInvalid)} className={cardClass}>
+      {/* Segmented control — a native radio group, so arrow keys work. */}
+      <fieldset>
+        <legend className="text-sm font-semibold text-navy">I am enquiring as</legend>
+        <div className="mt-3 grid grid-cols-1 gap-1 rounded-[14px] bg-mist p-1 sm:grid-cols-3">
+          {clientTypes.map((type) => (
+            <label key={type} className="relative">
+              <input
+                type="radio"
+                value={type}
+                className="peer sr-only"
+                {...register('clientType')}
+              />
+              <span className="flex h-11 cursor-pointer items-center justify-center rounded-[10px] px-3 text-center text-sm font-semibold text-ink-600 transition-colors peer-checked:bg-navy peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-gold hover:text-navy peer-checked:hover:text-white">
+                {type}
+              </span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <div className="mt-6 grid gap-5 sm:grid-cols-2">
         <Field>
           <Label htmlFor="cf-name" required>
-            Name
+            Full name
           </Label>
           <Input
             id="cf-name"
@@ -214,7 +212,7 @@ export function ConsultationForm({
         </Field>
 
         <Field>
-          <Label htmlFor="cf-company">Company / Family Name</Label>
+          <Label htmlFor="cf-company">Company / Family name</Label>
           <Input id="cf-company" autoComplete="organization" {...register('company')} />
         </Field>
 
@@ -251,27 +249,7 @@ export function ConsultationForm({
           <FieldError id="cf-phone-error">{errors.phone?.message}</FieldError>
         </Field>
 
-        <Field>
-          <Label htmlFor="cf-client-type" required>
-            I am a
-          </Label>
-          <Select
-            id="cf-client-type"
-            aria-invalid={Boolean(errors.clientType)}
-            aria-describedby={errors.clientType ? 'cf-client-type-error' : undefined}
-            {...register('clientType')}
-          >
-            <option value="">Please choose…</option>
-            {clientTypes.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </Select>
-          <FieldError id="cf-client-type-error">{errors.clientType?.message}</FieldError>
-        </Field>
-
-        <Field>
+        <Field className="sm:col-span-2">
           <Label htmlFor="cf-subject" required>
             Subject
           </Label>
@@ -293,7 +271,7 @@ export function ConsultationForm({
 
         <Field className="sm:col-span-2">
           <Label htmlFor="cf-message" required>
-            How can we help?
+            Message
           </Label>
           <Textarea
             id="cf-message"
@@ -306,33 +284,11 @@ export function ConsultationForm({
           <FieldError id="cf-message-error">{errors.message?.message}</FieldError>
         </Field>
 
-        <fieldset className="sm:col-span-2">
-          <legend className="text-sm font-semibold text-navy-900">
-            Preferred way to reach you
-          </legend>
-          <div className="mt-2.5 flex flex-wrap gap-4">
-            {preferredContacts.map((option) => (
-              <label
-                key={option}
-                className="inline-flex cursor-pointer items-center gap-2 text-sm text-ink-600"
-              >
-                <input
-                  type="radio"
-                  value={option}
-                  className="h-4 w-4 accent-[var(--color-teal-600)]"
-                  {...register('preferredContact')}
-                />
-                {option}
-              </label>
-            ))}
-          </div>
-        </fieldset>
-
         <Field className="sm:col-span-2">
-          <label className="flex cursor-pointer items-start gap-2.5 text-sm text-ink-600">
+          <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-ink-600">
             <input
               type="checkbox"
-              className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--color-teal-600)]"
+              className="mt-0.5 h-[18px] w-[18px] shrink-0 accent-[var(--teal-ink)]"
               aria-invalid={Boolean(errors.consent)}
               aria-describedby={errors.consent ? 'cf-consent-error' : undefined}
               {...register('consent')}
@@ -352,22 +308,12 @@ export function ConsultationForm({
           <label htmlFor="cf-website">Website</label>
           <input id="cf-website" tabIndex={-1} autoComplete="off" {...register('website')} />
         </div>
-
-        {siteKey ? (
-          <div className="sm:col-span-2">
-            <Turnstile
-              siteKey={siteKey}
-              onToken={setTurnstileToken}
-              resetSignal={turnstileReset}
-            />
-          </div>
-        ) : null}
       </div>
 
       {serverError ? (
         <div
           role="alert"
-          className="mt-5 flex items-start gap-2.5 rounded-btn border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+          className="mt-6 flex items-start gap-2.5 rounded-btn border border-red-200 bg-red-50 p-4 text-sm text-red-700"
         >
           <AlertCircle aria-hidden className="mt-0.5 h-4 w-4 shrink-0" />
           <span>
@@ -376,10 +322,7 @@ export function ConsultationForm({
             {status === 'error' ? (
               <>
                 {' '}
-                <a
-                  href={siteConfig.contact.phoneHref}
-                  className="font-semibold whitespace-nowrap underline"
-                >
+                <a href={siteConfig.contact.phoneHref} className="font-semibold whitespace-nowrap underline">
                   {siteConfig.contact.phoneDisplay}
                 </a>
               </>
@@ -388,21 +331,26 @@ export function ConsultationForm({
         </div>
       ) : null}
 
-      <div className="mt-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-        <Button type="submit" size="lg" disabled={status === 'submitting'}>
+      {/* Turnstile (left) + submit (right); stacked on small screens. */}
+      <div className="mt-7 flex flex-col-reverse items-stretch gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-h-[1px]">
+          {siteKey ? (
+            <Turnstile siteKey={siteKey} onToken={setTurnstileToken} resetSignal={turnstileReset} />
+          ) : null}
+        </div>
+        <Button type="submit" size="lg" disabled={status === 'submitting'} className="w-full sm:w-auto">
           {status === 'submitting' ? (
             <>
               <Loader2 aria-hidden className="h-5 w-5 animate-spin" />
               Sending…
             </>
           ) : (
-            'Request Consultation'
+            <>
+              {consultationSection.submit}
+              <ArrowRight aria-hidden className="h-5 w-5" />
+            </>
           )}
         </Button>
-        <p className="inline-flex items-center gap-1.5 text-[13px] text-ink-600">
-          <Phone aria-hidden className="h-3.5 w-3.5 text-gold-600" />
-          Prefer to talk? Call {siteConfig.contact.phoneDisplay}
-        </p>
       </div>
     </form>
   );

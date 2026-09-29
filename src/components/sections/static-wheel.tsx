@@ -4,19 +4,19 @@ import { useState } from 'react';
 import { ServiceWheel } from '@/components/home/service-wheel';
 
 /**
- * Smaller wheel for the Services hub hero (§6.3.1) — every pillar labelled,
- * no bubbles and no connectors.
+ * Wheel for the Services hub hero (DESIGN.md §6.3.1) — the same component as
+ * the home page, highlighting whichever pillar the visitor points at.
  */
 export function StaticWheel() {
-  const [activeSlug, setActiveSlug] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   return (
-    <ServiceWheel
-      activeSlug={activeSlug}
-      onActivate={setActiveSlug}
-      showAllLabels
-      labelClassName=""
-      className="mx-auto w-full max-w-[460px]"
-    />
+    <div onMouseLeave={() => setActiveId(null)}>
+      <ServiceWheel
+        activeId={activeId}
+        onActivate={setActiveId}
+        className="mx-auto h-auto w-full max-w-[420px] overflow-visible"
+      />
+    </div>
   );
 }

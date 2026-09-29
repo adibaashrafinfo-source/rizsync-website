@@ -1,264 +1,246 @@
 'use client';
 
+import { forwardRef, useState } from 'react';
 import Link from 'next/link';
+import { motion, useReducedMotion } from 'framer-motion';
 import { serviceBySlug } from '@/data/services';
-import { wheelLabels, wheelOrder } from '@/data/bubbles';
 import { pillarTheme } from '@/lib/pillar';
 
 /* --------------------------------------------------------------------------
-   Geometry. The wheel lives in its own 400 × 400 viewBox so it can be reused
-   at any size; the hub places it inside a larger coordinate space and only
-   has to offset by a constant (see service-hub.tsx).
+   Geometry — HOME_REDESIGN.md §4.3. The arc paths are the spec's, verbatim:
+   centre (260,260), radius 190, six 54° arcs separated by 6° gaps, starting
+   with Finance at the top right and running clockwise.
    -------------------------------------------------------------------------- */
 
-export const WHEEL_VIEWBOX = 400;
-const CX = 200;
-const CY = 200;
-const R_OUTER = 130;
-const R_INNER = 96;
-const R_CENTER = 78;
-const R_LABEL = 143;
-const R_ICON = (R_OUTER + R_INNER) / 2;
-/** Degrees of blank space between neighbouring arcs. */
-const GAP = 7;
+export const WHEEL_VIEWBOX = { x: -60, y: -30, width: 640, height: 580 };
+export const WHEEL_CENTER = { x: 260, y: 260 };
+const RADIUS = 190;
 
-const toRad = (deg: number) => (deg * Math.PI) / 180;
+export interface WheelArc {
+  slug: string;
+  path: string;
+  /** Mid-angle in degrees, 0 = 3 o'clock, clockwise. */
+  angle: number;
+  /** Two-line label drawn outside the ring. */
+  label: [string, string];
+}
 
-export function polar(angleDeg: number, radius: number, cx = CX, cy = CY) {
+export const WHEEL_ARCS: WheelArc[] = [
+  {
+    slug: 'finance-accounting',
+    path: 'M 269.9 70.3 A 190 190 0 0 1 419.3 156.5',
+    angle: -60,
+    label: ['Finance &', 'Accounting'],
+  },
+  {
+    slug: 'business-corporate',
+    path: 'M 429.3 173.7 A 190 190 0 0 1 429.3 346.3',
+    angle: 0,
+    label: ['Business &', 'Corporate'],
+  },
+  {
+    slug: 'government-assistance',
+    path: 'M 419.3 363.5 A 190 190 0 0 1 269.9 449.7',
+    angle: 60,
+    label: ['Government', 'Assistance'],
+  },
+  {
+    slug: 'digital-transformation',
+    path: 'M 250.1 449.7 A 190 190 0 0 1 100.7 363.5',
+    angle: 120,
+    label: ['Digital', 'Transformation'],
+  },
+  {
+    slug: 'family-welfare',
+    path: 'M 90.7 346.3 A 190 190 0 0 1 90.7 173.7',
+    angle: 180,
+    label: ['Family', 'Welfare'],
+  },
+  {
+    slug: 'why-rizsync',
+    path: 'M 100.7 156.5 A 190 190 0 0 1 250.1 70.3',
+    angle: 240,
+    label: ['Benefits &', 'Value'],
+  },
+];
+
+const STROKE = 34;
+const STROKE_ACTIVE = 46;
+
+/** Point on a circle around the wheel centre, in viewBox units. */
+export function wheelPoint(angleDeg: number, radius: number) {
+  const rad = (angleDeg * Math.PI) / 180;
   return {
-    x: cx + radius * Math.cos(toRad(angleDeg)),
-    y: cy + radius * Math.sin(toRad(angleDeg)),
+    x: WHEEL_CENTER.x + radius * Math.cos(rad),
+    y: WHEEL_CENTER.y + radius * Math.sin(rad),
   };
 }
 
-/** Mid-angle of the arc at `index`, starting at the upper right (−60°). */
-export const arcAngle = (index: number) => -60 + index * 60;
+/** Where a connector or tooltip attaches: just outside the active arc. */
+export const ARC_OUTER_RADIUS = RADIUS + STROKE_ACTIVE / 2 + 4;
 
-/** Annulus segment between two radii. */
-function arcPath(midAngle: number) {
-  const half = 30 - GAP / 2;
-  const a1 = midAngle - half;
-  const a2 = midAngle + half;
-  const o1 = polar(a1, R_OUTER);
-  const o2 = polar(a2, R_OUTER);
-  const i1 = polar(a1, R_INNER);
-  const i2 = polar(a2, R_INNER);
-  return [
-    `M ${o1.x} ${o1.y}`,
-    `A ${R_OUTER} ${R_OUTER} 0 0 1 ${o2.x} ${o2.y}`,
-    `L ${i2.x} ${i2.y}`,
-    `A ${R_INNER} ${R_INNER} 0 0 0 ${i1.x} ${i1.y}`,
-    'Z',
-  ].join(' ');
-}
-
-/** Where a bubble connector should meet the wheel, in wheel coordinates. */
-export function arcEdgePoint(index: number) {
-  return polar(arcAngle(index), R_OUTER + 2);
-}
-
-export interface WheelProps {
-  /** Slug of the arc currently hovered or focused, anywhere in the hub. */
-  activeSlug: string | null;
-  onActivate: (slug: string | null) => void;
-  /** Services hub page renders a static wheel with every label shown. */
-  showAllLabels?: boolean;
-  /** Labels are hidden below `md` where the wheel is only ~320px wide. */
-  labelClassName?: string;
-  className?: string;
-  /** Static variant drops the links and the idle animation. */
+export interface ServiceWheelProps {
+  activeId: string | null;
+  /** Hover or keyboard focus on an arc. */
+  onActivate?: (slug: string) => void;
+  /** Plain decorative wheel (the /services hero) — no links, no focus stops. */
   interactive?: boolean;
+  className?: string;
+  /** Accessible name for the whole graphic. */
+  label?: string;
 }
 
-export function ServiceWheel({
-  activeSlug,
-  onActivate,
-  showAllLabels = false,
-  labelClassName = 'hidden md:block',
-  className,
-  interactive = true,
-}: WheelProps) {
+export const ServiceWheel = forwardRef<SVGSVGElement, ServiceWheelProps>(function ServiceWheel(
+  { activeId, onActivate, interactive = true, className, label = 'RizSync service pillars' },
+  ref,
+) {
+  const reduceMotion = useReducedMotion();
+  // Tracks keyboard focus so the gold focus outline can be drawn in SVG —
+  // CSS `outline` is not reliably painted on SVG children.
+  const [focusedId, setFocusedId] = useState<string | null>(null);
+
   return (
     <svg
-      /*
-        With every pillar labelled, the text extends past the ring on both
-        sides, so the box is widened symmetrically about the wheel's centre
-        rather than letting the labels clip.
-      */
-      viewBox={
-        showAllLabels
-          ? `-80 0 ${WHEEL_VIEWBOX + 160} ${WHEEL_VIEWBOX}`
-          : `0 0 ${WHEEL_VIEWBOX} ${WHEEL_VIEWBOX}`
-      }
+      ref={ref}
+      viewBox={`${WHEEL_VIEWBOX.x} ${WHEEL_VIEWBOX.y} ${WHEEL_VIEWBOX.width} ${WHEEL_VIEWBOX.height}`}
       className={className}
-      role={interactive ? 'navigation' : 'img'}
-      aria-label="RizSync service pillars"
+      role={interactive ? 'group' : 'img'}
+      aria-label={label}
     >
-      <defs>
-        <radialGradient id="rz-hub-glow">
-          <stop offset="55%" stopColor="#C9A24D" stopOpacity="0" />
-          <stop offset="88%" stopColor="#C9A24D" stopOpacity="0.35" />
-          <stop offset="100%" stopColor="#C9A24D" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-
-      {/* Idle state: only this outer dotted ring rotates (§6.1 ②). */}
+      {/* Dashed inner ring, 15% white. */}
       <circle
-        cx={CX}
-        cy={CY}
-        r={R_OUTER + 22}
+        cx={WHEEL_CENTER.x}
+        cy={WHEEL_CENTER.y}
+        r={150}
         fill="none"
-        stroke="#C9A24D"
-        strokeOpacity={0.35}
-        strokeWidth={1}
-        strokeDasharray="2 10"
-        strokeLinecap="round"
-        className={interactive ? 'animate-spin-slow' : undefined}
-        style={{ transformOrigin: `${CX}px ${CY}px`, transformBox: 'view-box' }}
+        stroke="#FFFFFF"
+        strokeOpacity={0.15}
+        strokeWidth={1.5}
+        strokeDasharray="4 7"
       />
 
-      {/* Soft gold glow behind the hub. */}
-      <circle cx={CX} cy={CY} r={R_CENTER + 14} fill="url(#rz-hub-glow)" />
-
-      {wheelOrder.map((slug, index) => {
-        const service = serviceBySlug(slug);
+      {WHEEL_ARCS.map((arc, index) => {
+        const service = serviceBySlug(arc.slug);
         if (!service) return null;
 
         const theme = pillarTheme[service.color];
-        const Icon = service.icon;
-        const angle = arcAngle(index);
-        const icon = polar(angle, R_ICON);
-        const label = polar(angle, R_LABEL);
-        const onRight = Math.cos(toRad(angle)) > 0.01;
-        const dimmed = activeSlug !== null && activeSlug !== slug;
-        const active = activeSlug === slug;
-        const [line1, line2] = wheelLabels[slug];
+        const active = activeId === arc.slug;
+        const dimmed = activeId !== null && !active;
+        const labelAt = wheelPoint(arc.angle, 236);
+        const onRight = Math.cos((arc.angle * Math.PI) / 180) > 0.1;
+        const onLeft = Math.cos((arc.angle * Math.PI) / 180) < -0.1;
+        const anchor = onRight ? 'start' : onLeft ? 'end' : 'middle';
 
-        const arcBody = (
-          <g
-            style={{
-              transform: active ? 'scale(1.04)' : 'scale(1)',
-              transformOrigin: `${CX}px ${CY}px`,
-              transformBox: 'view-box',
-              transition: 'transform .3s var(--ease-out-soft), opacity .3s',
-              opacity: dimmed ? 0.5 : 1,
-            }}
-          >
-            <path
-              d={arcPath(angle)}
-              fill={theme.hex}
-              fillOpacity={active ? 1 : 0.9}
-              stroke="#FFFFFF"
-              strokeOpacity={0.14}
-              strokeWidth={1}
+        const body = (
+          <>
+            {/* Gold focus outline, drawn behind the arc. */}
+            {focusedId === arc.slug ? (
+              <>
+                <path
+                  d={arc.path}
+                  fill="none"
+                  stroke="#C9A24D"
+                  strokeWidth={STROKE_ACTIVE + 20}
+                  strokeLinecap="butt"
+                />
+                {/* Navy gap between the ring and the arc, like outline-offset. */}
+                <path
+                  d={arc.path}
+                  fill="none"
+                  stroke="#00204A"
+                  strokeWidth={STROKE_ACTIVE + 10}
+                  strokeLinecap="butt"
+                />
+              </>
+            ) : null}
+            <motion.path
+              d={arc.path}
+              fill="none"
+              stroke={theme.hex}
+              strokeLinecap="butt"
+              initial={reduceMotion ? false : { pathLength: 0 }}
+              animate={{
+                pathLength: 1,
+                strokeWidth: active ? STROKE_ACTIVE : STROKE,
+                opacity: dimmed ? 0.45 : 1,
+              }}
+              transition={{
+                pathLength: { duration: 0.9, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] },
+                strokeWidth: { duration: 0.2, ease: 'easeOut' },
+                opacity: { duration: 0.2, ease: 'easeOut' },
+              }}
             />
-            <Icon
-              x={icon.x - 13}
-              y={icon.y - 13}
-              width={26}
-              height={26}
-              strokeWidth={1.5}
-              color="#FFFFFF"
-              aria-hidden
-            />
-          </g>
-        );
-
-        const labelNode =
-          showAllLabels || !onRight ? (
             <text
-              x={label.x}
-              y={label.y}
-              textAnchor={onRight ? 'start' : 'end'}
-              className={labelClassName}
-              fill={active ? theme.hex : '#FFFFFF'}
-              fillOpacity={dimmed ? 0.45 : 0.95}
-              fontSize={13}
+              x={labelAt.x}
+              y={labelAt.y}
+              textAnchor={anchor}
               fontWeight={600}
-              style={{ transition: 'fill .3s, fill-opacity .3s' }}
+              // Larger in user units on small screens so labels stay legible
+              // once the whole SVG is scaled down.
+              className="text-[21px] sm:text-[18px] lg:text-[16px]"
+              fill={active ? '#FFFFFF' : '#DCE5F0'}
+              fillOpacity={dimmed ? 0.7 : 1}
+              style={{ fontFamily: 'var(--font-sans)', transition: 'fill .2s, fill-opacity .2s' }}
             >
-              <tspan x={label.x} dy="-2">
-                {line1}
+              <tspan x={labelAt.x} dy="-0.2em">
+                {arc.label[0]}
               </tspan>
-              <tspan x={label.x} dy="15">
-                {line2}
+              <tspan x={labelAt.x} dy="1.2em">
+                {arc.label[1]}
               </tspan>
             </text>
-          ) : null;
+          </>
+        );
 
-        if (!interactive) {
-          return (
-            <g key={slug}>
-              {arcBody}
-              {labelNode}
-            </g>
-          );
-        }
+        if (!interactive) return <g key={arc.slug}>{body}</g>;
 
         return (
           <Link
-            key={slug}
-            href={`/services/${service.slug}`}
+            key={arc.slug}
+            href={`/services/${arc.slug}`}
             aria-label={`${service.title} — ${service.navDescription}`}
-            className="cursor-pointer outline-none focus-visible:[&>g>path]:stroke-gold-500"
-            onMouseEnter={() => onActivate(slug)}
-            onMouseLeave={() => onActivate(null)}
-            onFocus={() => onActivate(slug)}
-            onBlur={() => onActivate(null)}
+            tabIndex={0}
+            className="cursor-pointer outline-none"
+            onMouseEnter={() => onActivate?.(arc.slug)}
+            onFocus={(event) => {
+              onActivate?.(arc.slug);
+              if ((event.currentTarget as Element).matches(':focus-visible')) {
+                setFocusedId(arc.slug);
+              }
+            }}
+            onBlur={() => setFocusedId(null)}
           >
-            {arcBody}
-            {labelNode}
+            {body}
           </Link>
         );
       })}
 
-      {/* Centre hub — logo mark (§6.1 ②). */}
-      <g>
-        <circle cx={CX} cy={CY} r={R_CENTER} fill="#00204A" />
-        <circle
-          cx={CX}
-          cy={CY}
-          r={R_CENTER}
-          fill="none"
-          stroke="#C9A24D"
-          strokeOpacity={0.55}
-          strokeWidth={1.5}
-        />
-        <circle
-          cx={CX}
-          cy={CY}
-          r={R_CENTER - 11}
-          fill="none"
-          stroke="#0FA3A3"
-          strokeOpacity={0.4}
-          strokeWidth={1}
-        />
-        <text
-          x={CX}
-          y={CY - 4}
-          textAnchor="middle"
-          fill="#FFFFFF"
-          fontSize={26}
-          fontWeight={700}
-          letterSpacing="-0.5"
-          style={{ fontFamily: 'var(--font-display)' }}
-        >
-          RizSync
-        </text>
-        <text
-          x={CX}
-          y={CY + 16}
-          textAnchor="middle"
-          fill="#C9A24D"
-          fontSize={8.5}
-          fontWeight={600}
-          letterSpacing="2.4"
-          style={{ fontFamily: 'var(--font-sans)' }}
-        >
-          SERVICE SOLUTION
-        </text>
-        <circle cx={CX} cy={CY + 32} r={3} fill="#C9A24D" />
-      </g>
+      {/* Centre — HOME_REDESIGN.md §4.3. */}
+      <circle cx={WHEEL_CENTER.x} cy={WHEEL_CENTER.y} r={118} fill="#FFFFFF" />
+      <text
+        x={WHEEL_CENTER.x}
+        y={WHEEL_CENTER.y + 6}
+        textAnchor="middle"
+        fill="#00204A"
+        fontSize={40}
+        fontWeight={700}
+        letterSpacing="-1"
+        style={{ fontFamily: 'var(--font-display)' }}
+      >
+        RizSync
+      </text>
+      <text
+        x={WHEEL_CENTER.x}
+        y={WHEEL_CENTER.y + 34}
+        textAnchor="middle"
+        fill="#0B7A7A"
+        fontSize={12}
+        fontWeight={700}
+        letterSpacing={3}
+        style={{ fontFamily: 'var(--font-sans)' }}
+      >
+        SERVICE PLATFORM
+      </text>
     </svg>
   );
-}
+});

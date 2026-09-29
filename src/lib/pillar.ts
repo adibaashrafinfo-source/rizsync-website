@@ -1,5 +1,5 @@
 /**
- * Pillar colour mapping — DESIGN.md §4.1.
+ * Pillar colour mapping — DESIGN.md §4.1 / HOME_REDESIGN.md §2.1 and §3.
  *
  * Tailwind needs class names to exist as complete literals at build time, so
  * every pillar variant is written out in full here rather than interpolated.
@@ -8,58 +8,83 @@
 export type PillarColor = 'teal' | 'orange' | 'gold';
 
 export interface PillarTheme {
-  /** 3px top border on pillar cards. */
-  border: string;
-  /** Tinted circle behind the pillar icon. */
-  iconWrap: string;
-  /** Icon stroke colour. */
-  icon: string;
-  /** Small text on white — uses the -600 shade for WCAG AA. */
-  text: string;
-  /** Solid fill, for dots and badges. */
-  dot: string;
-  /** Tinted section background. */
-  tint: string;
-  /** Ring shown when a wheel arc highlights its bubble. */
-  ring: string;
-  /** Raw hex, for inline SVG fills where a class cannot reach. */
+  /** Raw hex, for inline SVG strokes and box-shadows. */
   hex: string;
-  /** Eyebrow colour on a service sub-page hero (on navy). */
+  /** Tinted square behind an icon on white (§2.3). */
+  tile: string;
+  /** Icon colour inside a tinted tile — the accessible ink shade. */
+  tileIcon: string;
+  /** Solid pillar fill — featured tiles, number circles, dots. */
+  solid: string;
+  /** Small text on white. Never the raw brand colour (§2.1 contrast rules). */
+  ink: string;
+  /** Motto / service chip on navy: 14% fill, 45% border, light text. */
+  chipOnNavy: string;
+  /** Chip on white (active hero card, blog category). */
+  chipOnLight: string;
+  /** Focus/active ring colour. */
+  ring: string;
+
+  // v1 names still used by inner pages.
+  border: string;
+  iconWrap: string;
+  icon: string;
+  text: string;
+  dot: string;
+  tint: string;
   onDark: string;
 }
 
 export const pillarTheme: Record<PillarColor, PillarTheme> = {
   teal: {
-    border: 'border-t-teal-500',
-    iconWrap: 'bg-teal-50 text-teal-600',
-    icon: 'text-teal-600',
-    text: 'text-teal-600',
-    dot: 'bg-teal-500',
-    tint: 'bg-teal-50',
-    ring: 'ring-teal-500',
     hex: '#0FA3A3',
-    onDark: 'text-teal-500',
+    tile: 'bg-teal-50',
+    tileIcon: 'text-teal-ink',
+    solid: 'bg-teal',
+    ink: 'text-teal-ink',
+    chipOnNavy: 'border-teal/45 bg-teal/[0.14] text-teal-chip',
+    chipOnLight: 'bg-teal-50 text-teal-ink',
+    ring: 'ring-teal',
+    border: 'border-t-teal',
+    iconWrap: 'bg-teal-50 text-teal-ink',
+    icon: 'text-teal-ink',
+    text: 'text-teal-ink',
+    dot: 'bg-teal',
+    tint: 'bg-teal-50',
+    onDark: 'text-teal-on-navy',
   },
   orange: {
-    border: 'border-t-orange-500',
-    iconWrap: 'bg-orange-50 text-orange-600',
-    icon: 'text-orange-600',
-    text: 'text-orange-600',
-    dot: 'bg-orange-500',
-    tint: 'bg-orange-50',
-    ring: 'ring-orange-500',
     hex: '#F28C28',
-    onDark: 'text-orange-500',
+    tile: 'bg-orange-50',
+    tileIcon: 'text-orange-icon',
+    solid: 'bg-orange',
+    ink: 'text-orange-ink',
+    chipOnNavy: 'border-orange/45 bg-orange/[0.14] text-orange-chip',
+    chipOnLight: 'bg-orange-50 text-orange-ink',
+    ring: 'ring-orange',
+    border: 'border-t-orange',
+    iconWrap: 'bg-orange-50 text-orange-icon',
+    icon: 'text-orange-icon',
+    text: 'text-orange-ink',
+    dot: 'bg-orange',
+    tint: 'bg-orange-50',
+    onDark: 'text-orange-chip',
   },
   gold: {
-    border: 'border-t-gold-500',
-    iconWrap: 'bg-gold-50 text-gold-600',
-    icon: 'text-gold-600',
-    text: 'text-gold-600',
-    dot: 'bg-gold-500',
-    tint: 'bg-gold-50',
-    ring: 'ring-gold-500',
     hex: '#C9A24D',
-    onDark: 'text-gold-500',
+    tile: 'bg-gold-50',
+    tileIcon: 'text-gold-ink',
+    solid: 'bg-gold',
+    ink: 'text-gold-ink',
+    chipOnNavy: 'border-gold/45 bg-gold/[0.14] text-gold-chip',
+    chipOnLight: 'bg-gold-50 text-gold-ink',
+    ring: 'ring-gold',
+    border: 'border-t-gold',
+    iconWrap: 'bg-gold-50 text-gold-ink',
+    icon: 'text-gold-ink',
+    text: 'text-gold-ink',
+    dot: 'bg-gold',
+    tint: 'bg-gold-50',
+    onDark: 'text-gold-chip',
   },
 };

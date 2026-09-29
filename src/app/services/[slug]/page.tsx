@@ -10,8 +10,8 @@ import { Card } from '@/components/ui/card';
 import { FAQAccordion } from '@/components/ui/faq-accordion';
 import { Reveal } from '@/components/ui/reveal';
 import { PageHero } from '@/components/sections/page-hero';
-import { Process } from '@/components/sections/process';
-import { ConsultationCta } from '@/components/sections/consultation-cta';
+import { ProcessSteps } from '@/components/home/process-steps';
+import { ConsultationSection } from '@/components/home/consultation-section';
 import { JsonLd } from '@/components/seo/json-ld';
 import { services, serviceBySlug } from '@/data/services';
 import { ethicalValues } from '@/data/values';
@@ -170,11 +170,7 @@ export default async function ServicePage({
       </section>
 
       {/* ④ Process */}
-      <Process
-        eyebrow="How It Works"
-        title="From First Call to Completed File"
-        description="The same four steps on every engagement, so you always know where a matter stands."
-      />
+      <ProcessSteps />
 
       {/* ⑤ Service FAQ */}
       <Section className="bg-mist" labelledBy="service-faq-heading">
@@ -260,7 +256,7 @@ export default async function ServicePage({
       </Section>
 
       {/* ⑦ CTA with the subject pre-selected to this service */}
-      <ConsultationCta defaultSubject={service.slug} />
+      <ConsultationSection defaultSubject={service.slug} />
 
       <JsonLd
         graph={[

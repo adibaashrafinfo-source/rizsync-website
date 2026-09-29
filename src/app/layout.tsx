@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Plus_Jakarta_Sans, Amiri } from 'next/font/google';
+import { Sora, DM_Sans, Amiri } from 'next/font/google';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { WhatsAppFab } from '@/components/layout/whatsapp-fab';
@@ -9,24 +9,25 @@ import { organizationSchema, websiteSchema } from '@/lib/schema';
 import { siteConfig } from '@/config/site';
 import '@/styles/globals.css';
 
-/* Self-hosted through next/font — no layout shift, no third-party request. */
-const jakarta = Plus_Jakarta_Sans({
+/* Self-hosted through next/font — no layout shift, no third-party request.
+   HOME_REDESIGN.md §2.2: Sora for display, DM Sans for body. */
+const sora = Sora({
   subsets: ['latin'],
-  weight: ['500', '600', '700', '800'],
-  variable: '--font-plus-jakarta',
+  weight: ['600', '700', '800'],
+  variable: '--font-sora',
   display: 'swap',
 });
 
-const inter = Inter({
+const dmSans = DM_Sans({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
-  variable: '--font-inter',
+  variable: '--font-dm-sans',
   display: 'swap',
 });
 
 /* Used only for the Arabic ethics terms in the Values sections (§4.2). */
 const amiri = Amiri({
-  subsets: ['arabic'],
+  subsets: ['latin', 'arabic'],
   weight: ['400', '700'],
   variable: '--font-amiri',
   display: 'swap',
@@ -82,7 +83,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${jakarta.variable} ${inter.variable} ${amiri.variable}`}
+      className={`${sora.variable} ${dmSans.variable} ${amiri.variable}`}
       suppressHydrationWarning
     >
       <body className="flex min-h-dvh flex-col bg-paper antialiased">
