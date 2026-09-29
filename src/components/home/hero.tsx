@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Eyebrow } from '@/components/ui/eyebrow';
 import { MottoStrip } from '@/components/home/motto-strip';
 import { ServiceHub } from '@/components/home/service-hub';
+import { HeroFX } from '@/components/home/hero-fx';
 import { siteConfig } from '@/config/site';
 
 const trustIcons = [ShieldCheck, Tag, MapPin];
@@ -36,7 +37,10 @@ export function Hero() {
       />
       <div aria-hidden className="bg-circuit absolute inset-0 -z-10 opacity-[0.10]" />
 
-      <Container className="relative">
+      {/* Floating pillar cards, ambient glow and parallax — §6.1 ① luxury pass. */}
+      <HeroFX />
+
+      <Container className="relative z-10">
         <div className="grid items-center gap-12 xl:grid-cols-12 xl:gap-8">
           {/* Left column — 5/12 */}
           <div className="flex min-w-0 flex-col gap-6 xl:col-span-5">
