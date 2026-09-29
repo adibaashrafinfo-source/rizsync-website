@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Container } from '@/components/ui/container';
 import { Eyebrow } from '@/components/ui/eyebrow';
 import { Breadcrumbs, type Crumb } from '@/components/ui/breadcrumbs';
@@ -12,6 +13,7 @@ export function PageHero({
   crumbs,
   children,
   className,
+  image,
 }: {
   eyebrow?: string;
   eyebrowClassName?: string;
@@ -20,16 +22,40 @@ export function PageHero({
   crumbs: Crumb[];
   children?: React.ReactNode;
   className?: string;
+  /** Wide photo, dark on its left (the copy sits there); shown behind navy fades. */
+  image?: string;
 }) {
   return (
     <section
-      className={cn('relative overflow-hidden bg-navy-900 py-14 md:py-20', className)}
+      className={cn(
+        'relative isolate overflow-hidden bg-navy-900',
+        image ? 'py-16 md:py-24 xl:py-28' : 'py-14 md:py-20',
+        className,
+      )}
     >
-      <div aria-hidden className="bg-circuit pointer-events-none absolute inset-0" />
-      <div
-        aria-hidden
-        className="absolute inset-0 bg-gradient-to-br from-navy-950/70 via-transparent to-navy-950/60"
-      />
+      {image ? (
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+          <Image
+            src={image}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-[75%_center] opacity-45 md:opacity-80 lg:object-right"
+          />
+          {/* Solid navy under the copy, fading out towards the photo. */}
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,var(--navy)_0%,var(--navy)_30%,rgb(0_32_74/0.6)_62%,rgb(0_32_74/0.2)_100%)]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-navy/70 via-transparent to-navy/40" />
+        </div>
+      ) : (
+        <>
+          <div aria-hidden className="bg-circuit pointer-events-none absolute inset-0" />
+          <div
+            aria-hidden
+            className="absolute inset-0 bg-gradient-to-br from-navy-950/70 via-transparent to-navy-950/60"
+          />
+        </>
+      )}
 
       <Container className="relative">
         <Breadcrumbs items={crumbs} onDark />

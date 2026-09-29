@@ -58,6 +58,7 @@ export default function ContactPage() {
         title="Request a Consultation"
         description="Tell us what you need. The first conversation is free, confidential and carries no obligation."
         crumbs={crumbs}
+        image="/images/page-heroes/contact.webp"
       />
 
       {/* 2 — Quick contact cards */}

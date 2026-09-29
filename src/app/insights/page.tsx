@@ -36,6 +36,7 @@ export default function InsightsPage() {
         title="Regulatory Clarity, Written Plainly"
         description="Changes in tax law, RJSC practice, government process and Islamic business ethics — explained in terms of what you actually have to do."
         crumbs={crumbs}
+        image="/images/page-heroes/insights.webp"
       />
 
       {featured ? (

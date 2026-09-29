@@ -38,6 +38,7 @@ export default function AboutPage() {
         title="About RizSync"
         description="Simplifying complexity, ethically."
         crumbs={crumbs}
+        image="/images/page-heroes/about.webp"
       />
 
       {/* 2 — Our Story */}
