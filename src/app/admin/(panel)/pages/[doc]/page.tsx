@@ -7,8 +7,8 @@ import { getDoc } from '@/lib/admin/data';
 import { requireAdmin } from '@/lib/admin/session';
 
 /** Settings has its own route; these are the page documents. */
-function isPageDoc(doc: string): doc is 'home' | 'about' | 'ceo' {
-  return doc === 'home' || doc === 'about' || doc === 'ceo';
+function isPageDoc(doc: string): doc is 'home' | 'about' | 'ceo' | 'team' {
+  return doc === 'home' || doc === 'about' || doc === 'ceo' || doc === 'team';
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ doc: string }> }): Promise<Metadata> {

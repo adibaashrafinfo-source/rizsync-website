@@ -8,7 +8,7 @@ import { SectionHeading } from '@/components/ui/section-heading';
 import { Eyebrow } from '@/components/ui/eyebrow';
 import { Card } from '@/components/ui/card';
 import { Reveal } from '@/components/ui/reveal';
-import { LinkedInIcon } from '@/components/ui/social-icons';
+import { ArrowLink } from '@/components/ui/arrow-link';
 import { PageHero } from '@/components/sections/page-hero';
 import { CtaBanner } from '@/components/home/cta-banner';
 import { ValueCard } from '@/components/sections/value-card';
@@ -153,47 +153,34 @@ export default async function AboutPage() {
           description={about.teamSection.description}
         />
 
-        <ul className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Compact preview — the full profiles live on /our-team. */}
+        <ul className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {team.map((member, index) => (
             <li key={member.id ?? `${member.title}-${index}`}>
               <Reveal delay={index * 0.06} className="h-full">
-                <Card hoverable className="flex h-full flex-col overflow-hidden">
-                  {/* Initials stand in until a photo is uploaded in the admin. */}
-                  <div className="relative flex aspect-[4/3] items-center justify-center bg-navy-900">
+                <Card hoverable className="flex h-full items-center gap-4 p-4">
+                  <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-navy-900">
                     {member.photo ? (
                       <Image
                         src={member.photo}
                         alt={`${member.name}, ${member.title}`}
                         fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        sizes="80px"
                         className="object-cover object-top"
                       />
                     ) : (
-                      <>
-                        <div aria-hidden className="bg-geometric absolute inset-0" />
-                        <span className="relative font-display text-4xl font-bold text-gold-500">
-                          {initials(member.name)}
-                        </span>
-                      </>
+                      <span className="flex h-full w-full items-center justify-center font-display text-lg font-bold text-gold-500">
+                        {initials(member.name)}
+                      </span>
                     )}
                   </div>
-
-                  <div className="flex flex-1 flex-col p-6">
-                    <h3 className="text-base font-semibold text-navy-900">{member.name}</h3>
-                    <p className="mt-0.5 text-sm font-medium text-teal-600">{member.title}</p>
-                    <p className="mt-3 flex-1 text-sm leading-relaxed text-ink-600">
-                      {member.bio}
-                    </p>
-                    {member.linkedin ? (
-                      <a
-                        href={member.linkedin}
-                        aria-label={`${member.name} on LinkedIn`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-4 inline-flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink-600 transition-colors hover:border-navy-900/40 hover:text-navy-900"
-                      >
-                        <LinkedInIcon className="h-4 w-4" />
-                      </a>
+                  <div className="min-w-0">
+                    <h3 className="text-[15px] leading-snug font-semibold text-navy-900">{member.name}</h3>
+                    {member.title && member.title !== member.name ? (
+                      <p className="mt-0.5 text-[13px] font-medium text-teal-600">{member.title}</p>
+                    ) : null}
+                    {member.credentials ? (
+                      <p className="mt-1 text-[12px] leading-snug text-muted">{member.credentials}</p>
                     ) : null}
                   </div>
                 </Card>
@@ -201,6 +188,10 @@ export default async function AboutPage() {
             </li>
           ))}
         </ul>
+
+        <div className="mt-10 flex justify-center">
+          <ArrowLink href="/our-team">Meet the full team</ArrowLink>
+        </div>
       </Section>
 
       <CtaBanner

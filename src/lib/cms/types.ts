@@ -207,11 +207,37 @@ export interface AboutContent {
 export interface TeamMember {
   id?: string;
   name: string;
+  /** Primary designation, e.g. "Consultant — Tax & VAT". */
   title: string;
+  /** Qualifications line, e.g. "FCA, Advocate, Supreme Court of Bangladesh". */
+  credentials: string;
+  /** Key of the /our-team section this profile belongs to. */
+  group: string;
   bio: string;
+  /** Short capability bullets shown under the biography. */
+  expertise: string[];
   photo: string | null;
   linkedin: string | null;
   email: string | null;
+}
+
+/* -------------------------------------------------------------- our team */
+
+export interface TeamGroup {
+  /** Matches TeamMember.group. */
+  key: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  accent: Accent;
+}
+
+export interface TeamContent {
+  hero: { eyebrow: string; title: string; description: string; image: string };
+  intro: { eyebrow: string; /** markup */ title: string; body: string };
+  stats: { value: string; label: string }[];
+  groups: TeamGroup[];
+  cta: { title: string; description: string };
 }
 
 export interface Testimonial {

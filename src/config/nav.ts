@@ -10,6 +10,7 @@ export const mainNav: NavLink[] = [
   { label: 'Services', href: '/services' },
   { label: 'NBR Audit Check', href: '/nbr-audit-check' },
   { label: 'CEO Profile', href: '/ceo-profile' },
+  { label: 'Our Team', href: '/our-team' },
   { label: 'Insights', href: '/insights' },
   { label: 'Contact', href: '/contact' },
 ];
@@ -18,6 +19,7 @@ export const mainNav: NavLink[] = [
 export const companyNav: NavLink[] = [
   { label: 'About Us', href: '/about' },
   { label: 'CEO Profile', href: '/ceo-profile' },
+  { label: 'Our Team', href: '/our-team' },
   { label: 'NBR Audit Check', href: '/nbr-audit-check' },
   { label: 'Insights', href: '/insights' },
   { label: 'Contact', href: '/contact' },

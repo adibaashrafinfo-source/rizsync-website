@@ -1,5 +1,12 @@
 import { insightCategories } from '@/lib/categories';
+import { defaultTeamPage } from '@/data/team';
 import { accentOptions, type Field, type FormSection } from '@/lib/admin/fields';
+
+/** Sections an admin can file a profile under (from the Our Team page doc). */
+const teamGroupOptions = defaultTeamPage.groups.map((group) => ({
+  value: group.key,
+  label: group.title,
+}));
 
 /* ------------------------------------------------------------ shared bits */
 
@@ -284,17 +291,20 @@ export const entities: Record<EntityKey, EntityConfig> = {
     table: 'team_members',
     singular: 'Team member',
     plural: 'Our Team',
-    description: 'Leadership profiles on the About page.',
+    description: 'Profiles on the Our Team page, grouped by the sections you define in Pages → Our Team page.',
     titleField: 'name',
     subtitleField: 'title',
     imageField: 'photo',
     orderBy: { column: 'sort_order', ascending: true },
     sortable: true,
-    publicPath: () => '/about',
+    publicPath: () => '/our-team',
     defaults: {
       name: '',
       title: '',
+      credentials: '',
+      group: 'advisory',
       bio: '',
+      expertise: [],
       photo: null,
       linkedin: '',
       email: '',
@@ -306,9 +316,24 @@ export const entities: Record<EntityKey, EntityConfig> = {
         title: 'Profile',
         fields: [
           { name: 'name', label: 'Full name', type: 'text', required: true, half: true },
-          { name: 'title', label: 'Role / title', type: 'text', half: true },
-          { name: 'photo', label: 'Photo', type: 'image', folder: 'team', help: 'Portrait works best (4:3 crop).' },
+          { name: 'title', label: 'Designation', type: 'text', half: true, help: 'e.g. Consultant — Tax & VAT' },
+          {
+            name: 'credentials',
+            label: 'Qualifications',
+            type: 'text',
+            help: 'Shown under the designation, e.g. FCA, Advocate, Supreme Court of Bangladesh.',
+          },
+          {
+            name: 'group',
+            label: 'Section',
+            type: 'select',
+            half: true,
+            options: teamGroupOptions,
+            help: 'Which section of the Our Team page this profile appears in.',
+          },
+          { name: 'photo', label: 'Photo', type: 'image', folder: 'team', help: 'Portrait, about 800 × 1000.' },
           { name: 'bio', label: 'Short biography', type: 'textarea', rows: 4 },
+          { name: 'expertise', label: 'Areas of expertise', type: 'list', help: 'Shown as tags on the profile card.' },
         ],
       },
       {
@@ -396,7 +421,7 @@ export function isEntityKey(value: string): value is EntityKey {
 
 /* -------------------------------------------------------------- documents */
 
-export type DocKey = 'settings' | 'home' | 'about' | 'ceo';
+export type DocKey = 'settings' | 'home' | 'about' | 'ceo' | 'team';
 
 export interface DocConfig {
   key: DocKey;
@@ -945,6 +970,91 @@ export const docs: Record<DocKey, DocConfig> = {
                   { value: 'teal', label: 'Teal' },
                 ],
               },
+            ],
+          },
+          {
+            name: 'cta',
+            label: 'Call to action',
+            type: 'group',
+            fields: [
+              { name: 'title', label: 'Heading', type: 'text' },
+              { name: 'description', label: 'Text', type: 'textarea', rows: 2 },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+
+  team: {
+    key: 'team',
+    title: 'Our Team page',
+    description: 'Page header, intro, the numbers and the section headings. The profiles themselves live in Content → Our Team.',
+    publicPath: '/our-team',
+    sections: [
+      {
+        title: 'Page header',
+        fields: [
+          {
+            name: 'hero',
+            label: 'Header',
+            type: 'group',
+            fields: [
+              { name: 'eyebrow', label: 'Small label', type: 'text', half: true },
+              { name: 'title', label: 'Title', type: 'text', half: true },
+              { name: 'description', label: 'Subtitle', type: 'textarea', rows: 2 },
+              { name: 'image', label: 'Background image', type: 'image', folder: 'site' },
+            ],
+          },
+        ],
+      },
+      {
+        title: 'Introduction',
+        fields: [
+          {
+            name: 'intro',
+            label: 'Intro',
+            type: 'group',
+            fields: [
+              { name: 'eyebrow', label: 'Small label', type: 'text', half: true },
+              { name: 'title', label: 'Heading', type: 'markup', half: true, help: markupHelp },
+              { name: 'body', label: 'Text', type: 'textarea', rows: 3 },
+            ],
+          },
+          {
+            name: 'stats',
+            label: 'Numbers',
+            type: 'repeater',
+            itemLabel: 'label',
+            fields: [
+              { name: 'value', label: 'Number', type: 'text', half: true },
+              { name: 'label', label: 'Label', type: 'text', half: true },
+            ],
+          },
+        ],
+      },
+      {
+        title: 'Sections',
+        description: 'Each section groups the profiles whose "Section" field matches its key.',
+        fields: [
+          {
+            name: 'groups',
+            label: 'Sections',
+            type: 'repeater',
+            itemLabel: 'title',
+            fields: [
+              {
+                name: 'key',
+                label: 'Key',
+                type: 'slug',
+                half: true,
+                required: true,
+                help: 'Lower-case id used to match profiles, e.g. advisory.',
+              },
+              { name: 'accent', label: 'Colour', type: 'color', half: true },
+              { name: 'eyebrow', label: 'Small label', type: 'text', half: true },
+              { name: 'title', label: 'Heading', type: 'text', half: true },
+              { name: 'description', label: 'Intro', type: 'textarea', rows: 2 },
             ],
           },
           {

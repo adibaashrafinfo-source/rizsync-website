@@ -7,13 +7,14 @@ import { defaultHome } from '@/data/home';
 import { defaultAbout } from '@/data/about';
 import { defaultCeo } from '@/data/ceo';
 import { defaultServices } from '@/data/services';
-import { defaultTeam } from '@/data/team';
+import { defaultTeam, defaultTeamPage } from '@/data/team';
 import { defaultTestimonials } from '@/data/testimonials';
 import { defaultFaqs } from '@/data/faqs';
 import { slugify } from '@/lib/utils';
 import type {
   AboutContent,
   CeoContent,
+  TeamContent,
   Faq,
   HomeContent,
   Service,
@@ -188,7 +189,7 @@ export async function getServiceBySlug(slug: string): Promise<Service | undefine
 const loadTeam = cached('team', async () => {
   const { data, error } = await createSupabasePublicClient()
     .from('team_members')
-    .select('id, name, title, bio, photo, linkedin, email')
+    .select('id, name, title, credentials, "group", bio, expertise, photo, linkedin, email')
     .eq('published', true)
     .order('sort_order')
     .order('created_at');
@@ -198,6 +199,14 @@ const loadTeam = cached('team', async () => {
 
 export async function getTeam(): Promise<TeamMember[]> {
   return withFallback(loadTeam, defaultTeam, 'team');
+}
+
+export async function getTeamContent(): Promise<TeamContent> {
+  return withFallback(
+    async () => mergeDefaults(defaultTeamPage, (await loadDocs()).team),
+    defaultTeamPage,
+    'team-page',
+  );
 }
 
 const loadTestimonials = cached('testimonials', async () => {

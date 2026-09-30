@@ -50,6 +50,7 @@ function navGroups(newLeads: number): { label: string; items: NavItem[] }[] {
         { href: '/admin/pages/home', label: 'Home page', icon: Home },
         { href: '/admin/pages/about', label: 'About page', icon: Info },
         { href: '/admin/pages/ceo', label: 'CEO profile', icon: UserRound },
+        { href: '/admin/pages/team', label: 'Our Team page', icon: Users },
       ],
     },
     {
