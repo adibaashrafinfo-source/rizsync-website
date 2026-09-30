@@ -7,7 +7,7 @@ import { subjectLabel } from '@/lib/validators';
  * set. Uses the REST endpoint directly rather than pulling in the Supabase
  * client for one insert.
  *
- * Expected table:
+ * Table (see supabase/migrations, applied to the project directly):
  *   create table public.leads (
  *     id uuid primary key default gen_random_uuid(),
  *     created_at timestamptz not null default now(),
@@ -23,14 +23,18 @@ import { subjectLabel } from '@/lib/validators';
  *     source text,
  *     ip text
  *   );
- *   alter table public.leads enable row level security;   -- service role only
+ *   alter table public.leads enable row level security;
+ *
+ * RLS: the service-role key bypasses RLS entirely (preferred — read/update
+ * also become possible). Without one, an anon-key "insert only" policy
+ * lets this route write rows but never list, read, update or delete them.
  */
 export async function storeLead(
   data: ConsultationInput,
   meta: { ip: string; source: string },
 ): Promise<{ stored: boolean; error?: string }> {
   const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
 
   if (!url || !key) return { stored: false, error: 'supabase-not-configured' };
 
