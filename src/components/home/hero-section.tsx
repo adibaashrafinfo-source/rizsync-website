@@ -12,25 +12,74 @@ import { getHomeContent, getSiteConfig } from '@/lib/cms/queries';
 /** Placeholder avatars for the social-proof row — TODO(client) real photos. */
 const avatars = ['bg-teal', 'bg-orange', 'bg-gold'];
 
-/** Decorative background — HOME_REDESIGN.md §4.2 layers 1–3. */
+/** Rising light particles — fixed positions so server and client markup match. */
+const particles = [
+  { left: '6%', bottom: '8%', size: 3, d: 14, delay: 0, dx: 18, o: 0.55, c: 'bg-teal' },
+  { left: '14%', bottom: '22%', size: 2, d: 11, delay: 3, dx: -12, o: 0.45, c: 'bg-gold' },
+  { left: '23%', bottom: '4%', size: 2, d: 16, delay: 6, dx: 10, o: 0.4, c: 'bg-white' },
+  { left: '34%', bottom: '14%', size: 3, d: 13, delay: 1.5, dx: -16, o: 0.5, c: 'bg-orange' },
+  { left: '47%', bottom: '6%', size: 2, d: 15, delay: 8, dx: 14, o: 0.4, c: 'bg-teal' },
+  { left: '56%', bottom: '30%', size: 2, d: 12, delay: 4.5, dx: -8, o: 0.45, c: 'bg-white' },
+  { left: '64%', bottom: '10%', size: 3, d: 17, delay: 2, dx: 20, o: 0.5, c: 'bg-gold' },
+  { left: '73%', bottom: '24%', size: 2, d: 13, delay: 9, dx: -14, o: 0.4, c: 'bg-teal' },
+  { left: '82%', bottom: '8%', size: 3, d: 15, delay: 5, dx: 12, o: 0.5, c: 'bg-orange' },
+  { left: '91%', bottom: '18%', size: 2, d: 11, delay: 7, dx: -10, o: 0.45, c: 'bg-white' },
+];
+
+/**
+ * Decorative background — HOME_REDESIGN.md §4.2, with ambient motion:
+ * a slow Ken Burns drift on the photo, two aurora glows, a panning grid, a
+ * light sweep, rising particles, an orbiting ring and pulses along the
+ * circuit lines. Everything animates transform/opacity only, and the global
+ * reduced-motion rule freezes it all.
+ */
 function HeroBackdrop({ image }: { image: string }) {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-      {/* 0 — photo: the artwork is dark on its left, so the copy sits there.
-          Overlays keep text contrast AA and stop it competing with the wheel. */}
-      <Image
-        src={image}
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover object-[70%_center] opacity-50 xl:object-right xl:opacity-70"
-      />
+      {/* 0 — photo: the artwork is dark on its left, so the copy sits there. */}
+      <div className="animate-kenburns absolute inset-0 will-change-transform">
+        <Image
+          src={image}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[70%_center] opacity-50 xl:object-right xl:opacity-70"
+        />
+      </div>
       <div className="absolute inset-0 bg-[linear-gradient(90deg,var(--navy)_0%,var(--navy)_38%,rgb(0_32_74/0.55)_68%,rgb(0_32_74/0.3)_100%)]" />
       <div className="absolute inset-0 bg-gradient-to-t from-navy via-transparent to-navy/60" />
 
-      {/* 1 — 48px grid, white at 4.5% */}
-      <div className="pattern-grid absolute inset-0" />
+      {/* 1 — aurora glows */}
+      <div className="animate-aurora-a absolute top-[-20%] right-[8%] h-[70%] w-[48%] rounded-full bg-[radial-gradient(closest-side,rgb(15_163_163/0.28),transparent)] blur-2xl will-change-transform" />
+      <div className="animate-aurora-b absolute right-[-10%] bottom-[-25%] h-[65%] w-[42%] rounded-full bg-[radial-gradient(closest-side,rgb(242_140_40/0.2),transparent)] blur-2xl will-change-transform" />
+      <div className="animate-aurora-b absolute top-[10%] left-[-12%] h-[55%] w-[36%] rounded-full bg-[radial-gradient(closest-side,rgb(201_162_77/0.12),transparent)] blur-2xl will-change-transform [animation-delay:-8s]" />
+
+      {/* 2 — 48px grid, slowly panning, faded towards the edges */}
+      <div className="pattern-grid animate-grid-pan absolute inset-0 [mask-image:radial-gradient(ellipse_at_60%_45%,black_35%,transparent_80%)]" />
+
+      {/* 3 — light sweep across the whole hero */}
+      <div className="animate-sweep absolute inset-y-0 left-0 w-[35%] bg-[linear-gradient(90deg,transparent,rgb(255_255_255/0.06),transparent)]" />
+
+      {/* 4 — rising particles */}
+      {particles.map((p, index) => (
+        <span
+          key={index}
+          className={`animate-rise absolute rounded-full ${p.c} shadow-[0_0_8px_currentColor]`}
+          style={
+            {
+              left: p.left,
+              bottom: p.bottom,
+              width: p.size,
+              height: p.size,
+              '--rz-d': `${p.d}s`,
+              '--rz-delay': `-${p.delay}s`,
+              '--rz-dx': `${p.dx}px`,
+              '--rz-o': p.o,
+            } as React.CSSProperties
+          }
+        />
+      ))}
 
       <svg
         className="absolute inset-0 h-full w-full"
@@ -38,21 +87,33 @@ function HeroBackdrop({ image }: { image: string }) {
         preserveAspectRatio="xMidYMax slice"
         focusable="false"
       >
-        {/* 2 — glow circles: teal behind the wheel, orange bottom-right */}
-        <circle cx="1010" cy="400" r="420" fill="#0FA3A3" fillOpacity="0.07" />
-        <circle cx="1380" cy="760" r="260" fill="#F28C28" fillOpacity="0.06" />
+        {/* 5 — orbit rings behind the wheel */}
+        <g className="animate-orbit">
+          <circle cx="1010" cy="400" r="330" fill="none" stroke="#FFFFFF" strokeOpacity="0.07" strokeWidth="1" strokeDasharray="2 10" />
+          <circle cx="1010" cy="70" r="4" fill="#C9A24D" fillOpacity="0.8" />
+          <circle cx="1340" cy="400" r="3" fill="#0FA3A3" fillOpacity="0.8" />
+        </g>
+        <circle cx="1010" cy="400" r="420" fill="none" stroke="#0FA3A3" strokeOpacity="0.06" strokeWidth="1" />
 
-        {/* 3 — circuit lines, bottom-left */}
+        {/* 6 — circuit lines, bottom-left, with travelling light pulses */}
         <g fill="none" strokeWidth="1.5" strokeLinejoin="round">
+          <polyline points="0,772 140,772 176,752 330,752 360,730" stroke="#0FA3A3" strokeOpacity="0.35" />
+          <polyline points="0,800 96,800 122,818 300,818 330,796 430,796" stroke="#F28C28" strokeOpacity="0.3" />
           <polyline
             points="0,772 140,772 176,752 330,752 360,730"
-            stroke="#0FA3A3"
-            strokeOpacity="0.35"
+            stroke="#5EEAD4"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeDasharray="28 972"
+            className="animate-travel"
           />
           <polyline
             points="0,800 96,800 122,818 300,818 330,796 430,796"
-            stroke="#F28C28"
-            strokeOpacity="0.3"
+            stroke="#FDBA74"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeDasharray="24 976"
+            className="animate-travel [animation-delay:-3.5s]"
           />
         </g>
         <circle cx="360" cy="730" r="4" fill="#0FA3A3" fillOpacity="0.6" />

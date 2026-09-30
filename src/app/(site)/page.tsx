@@ -10,6 +10,7 @@ import { ProcessSteps } from '@/components/home/process-steps';
 import { Testimonials } from '@/components/home/testimonials-section';
 import { CtaBanner } from '@/components/home/cta-banner';
 import { InsightsPreview } from '@/components/home/insights-preview';
+import { FaqSection } from '@/components/home/faq-section';
 import { ConsultationSection } from '@/components/home/consultation-section';
 
 export const metadata: Metadata = pageMetadata({
@@ -33,6 +34,7 @@ export default function HomePage() {
       <Testimonials />
       <CtaBanner className="pt-0 md:pt-0 xl:pt-0" />
       <InsightsPreview />
+      <FaqSection />
       <ConsultationSection />
     </>
   );

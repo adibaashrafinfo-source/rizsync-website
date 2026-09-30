@@ -177,6 +177,7 @@ export interface HomeContent {
   testimonialsSection: { eyebrow: string; title: string };
   ctaBanner: { title: string; body: string; cta: string };
   insightsSection: { eyebrow: string; title: string; cta: string };
+  faqSection: { eyebrow: string; /** markup */ title: string; body: string; cta: string };
   consultationSection: { eyebrow: string; title: string; body: string; submit: string };
 }
 

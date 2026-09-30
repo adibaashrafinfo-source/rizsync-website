@@ -371,7 +371,7 @@ export const entities: Record<EntityKey, EntityConfig> = {
     table: 'faqs',
     singular: 'FAQ',
     plural: 'FAQs',
-    description: 'General questions on the Services page. Service-specific FAQs live in each service.',
+    description: 'General questions on the home page and the Services page. Service-specific FAQs live in each service.',
     titleField: 'question',
     orderBy: { column: 'sort_order', ascending: true },
     sortable: true,
@@ -609,6 +609,17 @@ export const docs: Record<DocKey, DocConfig> = {
           heading('pillarsSection', 'Services grid', [{ name: 'cta', label: 'Button', type: 'text' }]),
           heading('testimonialsSection', 'Testimonials'),
           heading('insightsSection', 'Insights', [{ name: 'cta', label: 'Link text', type: 'text' }]),
+          {
+            name: 'faqSection',
+            label: 'FAQ section',
+            type: 'group',
+            fields: [
+              { name: 'eyebrow', label: 'Small label', type: 'text', half: true },
+              { name: 'cta', label: 'Button', type: 'text', half: true },
+              { name: 'title', label: 'Heading', type: 'markup', help: markupHelp },
+              { name: 'body', label: 'Paragraph', type: 'textarea', rows: 2 },
+            ],
+          },
           heading('valuesSection', 'Values', [
             { name: 'body', label: 'Paragraph', type: 'textarea', rows: 2 },
             { name: 'link', label: 'Link text', type: 'text' },

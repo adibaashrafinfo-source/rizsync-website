@@ -96,6 +96,13 @@ export const defaultHome: HomeContent = {
     cta: 'View all insights',
   },
 
+  faqSection: {
+    eyebrow: 'FAQ',
+    title: 'Questions we hear {teal:every week}',
+    body: 'Straight answers about how we work, what we charge and which services fit your situation. Can’t find yours? Ask us directly.',
+    cta: 'Ask a question',
+  },
+
   consultationSection: {
     eyebrow: 'Request consultation',
     title: "Let's simplify your business & family matters.",

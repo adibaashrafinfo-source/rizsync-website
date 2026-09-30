@@ -75,7 +75,7 @@ export function Header() {
                           className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180"
                         />
                       </NavigationMenu.Trigger>
-                      <NavigationMenu.Content className="absolute top-full left-0 w-full">
+                      <NavigationMenu.Content className="absolute top-0 left-0">
                         <MegaMenu />
                       </NavigationMenu.Content>
                     </NavigationMenu.Item>
@@ -103,7 +103,9 @@ export function Header() {
               which sits right of centre, so a full-width box would overflow.
             */}
             <div className="absolute top-full left-1/2 flex w-[min(92vw,56rem)] max-w-[calc(100vw-2rem)] -translate-x-1/2 justify-center pt-4">
-              <NavigationMenu.Viewport className="origin-top overflow-hidden rounded-card border border-line bg-paper shadow-float data-[state=closed]:hidden" />
+              {/* Sized from the Radix CSS vars so the white panel wraps the absolutely
+                positioned menu content instead of collapsing to zero height. */}
+            <NavigationMenu.Viewport className="relative h-[var(--radix-navigation-menu-viewport-height)] w-[var(--radix-navigation-menu-viewport-width)] origin-top overflow-hidden rounded-card border border-line bg-white shadow-float transition-[width,height] duration-200 data-[state=closed]:hidden" />
             </div>
           </NavigationMenu.Root>
 
