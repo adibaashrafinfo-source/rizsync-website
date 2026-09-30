@@ -234,7 +234,7 @@ function normaliseAssessmentYear(value: string): string | null {
  * Bangla glyphs in visual order, e.g. "সার্কেল" comes out as "সােক  ল".
  */
 const HEADER_ALIASES: [ColumnKey, RegExp, RegExp | null][] = [
-  ['sl', /^(s\.?\s*l\.?|sl\.?\s*no\.?|serial|ser\.?\s*no|no\.)$|^sl\b|^serial/i, /করমক|করম/],
+  ['sl', /^(#|id|no\.?|s\.?\s*l\.?|sl\.?\s*(no\.?|#)|serial(\s*no\.?)?|ser\.?\s*no\.?)$|^sl\b|^serial/i, /করমক|করম/],
   ['bin', /\bbin\b/i, /বআইএন/],
   ['tin', /\b(e-?)?tin\b/i, /আইএন/],
   ['zone', /zone/i, /অঞচল/],
@@ -263,20 +263,39 @@ function headerKey(text: string): ColumnKey | null {
 
 async function readPage(page: PdfPage): Promise<{ lines: Line[]; rulings: Rulings }> {
   const viewport = page.getViewport({ scale: 1 });
-  const [content, operators] = await Promise.all([page.getTextContent(), page.getOperatorList()]);
-  const items: Item[] = [];
+  const operators = await page.getOperatorList();
+  const fontMatrix = (name: string): number[] | null => {
+    try {
+      return page.commonObjs.has(name) ? ((page.commonObjs.get(name) as { fontMatrix?: number[] }).fontMatrix ?? null) : null;
+    } catch {
+      return null;
+    }
+  };
+  // Glyph-level positions: pdfjs' text-content API merges neighbouring
+  // table cells into one string, which breaks column assignment.
+  let items: Item[] = glyphsOf(operators, viewport.transform, fontMatrix);
+  if (!items.length) items = await textContentItems(page, viewport.transform);
+  return { lines: groupLines(items), rulings: rulingsOf(operators, viewport.transform) };
+}
 
+/** Fallback: pdfjs text runs (used only when no glyphs could be positioned). */
+async function textContentItems(page: PdfPage, viewportTransform: number[]): Promise<Item[]> {
+  const content = await page.getTextContent();
+  const items: Item[] = [];
   for (const raw of content.items) {
     if (!('str' in raw)) continue;
     // Glyphs without a Unicode mapping come out as control characters.
     const text = raw.str.replace(/[\u0000-\u001F\uFFFD]/g, '');
     if (!text.trim()) continue;
     // Viewport coordinates: origin top-left, page rotation applied.
-    const [, , , , x, y] = Util.transform(viewport.transform, raw.transform);
+    const [, , , , x, y] = Util.transform(viewportTransform, raw.transform);
     const height = Math.hypot(raw.transform[2], raw.transform[3]) || 8;
     items.push({ text, x, y, width: raw.width, height });
   }
+  return items;
+}
 
+function groupLines(items: Item[]): Line[] {
   items.sort((a, b) => a.y - b.y || a.x - b.x);
   const lines: Line[] = [];
   for (const item of items) {
@@ -289,7 +308,146 @@ async function readPage(page: PdfPage): Promise<{ lines: Line[]; rulings: Ruling
     }
   }
   for (const line of lines) line.items.sort((a, b) => a.x - b.x);
-  return { lines, rulings: rulingsOf(operators, viewport.transform) };
+  return lines;
+}
+
+interface GlyphLike {
+  unicode?: string;
+  width?: number;
+  isSpace?: boolean;
+}
+
+/**
+ * Replays the text operators (text matrix, font size, spacing, TJ offsets)
+ * to place every glyph, like pdfjs' canvas renderer does.
+ */
+function glyphsOf(
+  operators: { fnArray: number[]; argsArray: unknown[] },
+  viewportTransform: number[],
+  fontMatrixOf: (name: string) => number[] | null,
+): Item[] {
+  const items: Item[] = [];
+  const stack: { ctm: number[]; text: typeof state }[] = [];
+  let ctm = [1, 0, 0, 1, 0, 0];
+  let state = {
+    tm: [1, 0, 0, 1, 0, 0],
+    x: 0,
+    y: 0,
+    lineX: 0,
+    lineY: 0,
+    leading: 0,
+    fontSize: 0,
+    fontDirection: 1,
+    fontMatrix: [0.001, 0, 0, 0.001, 0, 0],
+    charSpacing: 0,
+    wordSpacing: 0,
+    hScale: 1,
+    rise: 0,
+  };
+
+  const moveText = (x: number, y: number) => {
+    state.x = state.lineX += x;
+    state.y = state.lineY += y;
+  };
+
+  operators.fnArray.forEach((fn, index) => {
+    const args = (operators.argsArray[index] ?? []) as unknown[];
+    switch (fn) {
+      case OPS.save:
+        stack.push({ ctm, text: { ...state } });
+        break;
+      case OPS.restore: {
+        const saved = stack.pop();
+        if (saved) {
+          ctm = saved.ctm;
+          // Text position is not part of the graphics state; keep it.
+          state = { ...saved.text, tm: state.tm, x: state.x, y: state.y, lineX: state.lineX, lineY: state.lineY };
+        }
+        break;
+      }
+      case OPS.transform:
+        ctm = Util.transform(ctm, args as number[]);
+        break;
+      case OPS.paintFormXObjectBegin: {
+        stack.push({ ctm, text: { ...state } });
+        const matrix = args[0] as number[] | null;
+        if (matrix) ctm = Util.transform(ctm, matrix);
+        break;
+      }
+      case OPS.paintFormXObjectEnd: {
+        const saved = stack.pop();
+        if (saved) ctm = saved.ctm;
+        break;
+      }
+      case OPS.beginText:
+        state.tm = [1, 0, 0, 1, 0, 0];
+        state.x = state.lineX = state.y = state.lineY = 0;
+        break;
+      case OPS.setTextMatrix:
+        state.tm = (args.length === 1 ? args[0] : args) as number[];
+        state.x = state.lineX = state.y = state.lineY = 0;
+        break;
+      case OPS.moveText:
+        moveText(args[0] as number, args[1] as number);
+        break;
+      case OPS.setLeadingMoveText:
+        state.leading = args[1] as number;
+        moveText(args[0] as number, args[1] as number);
+        break;
+      case OPS.setLeading:
+        state.leading = -(args[0] as number);
+        break;
+      case OPS.nextLine:
+        moveText(0, state.leading);
+        break;
+      case OPS.setFont: {
+        const size = args[1] as number;
+        state.fontSize = Math.abs(size);
+        state.fontDirection = size < 0 ? -1 : 1;
+        state.fontMatrix = fontMatrixOf(args[0] as string) ?? [0.001, 0, 0, 0.001, 0, 0];
+        break;
+      }
+      case OPS.setCharSpacing:
+        state.charSpacing = args[0] as number;
+        break;
+      case OPS.setWordSpacing:
+        state.wordSpacing = args[0] as number;
+        break;
+      case OPS.setHScale:
+        state.hScale = (args[0] as number) / 100;
+        break;
+      case OPS.setTextRise:
+        state.rise = args[0] as number;
+        break;
+      case OPS.showText: {
+        const glyphs = args[0] as (GlyphLike | number)[];
+        if (!Array.isArray(glyphs) || !state.fontSize) break;
+        const hScale = state.hScale * state.fontDirection;
+        const advanceScale = state.fontSize * (state.fontMatrix[0] || 0.001);
+        const m = Util.transform(viewportTransform, Util.transform(ctm, state.tm));
+        const scale = Math.hypot(m[0], m[1]) || 1;
+        const height = state.fontSize * (Math.hypot(m[2], m[3]) || 1);
+        let x = 0;
+        for (const glyph of glyphs) {
+          if (typeof glyph === 'number') {
+            x -= (glyph * state.fontSize) / 1000;
+            continue;
+          }
+          const spacing = (glyph.isSpace ? state.wordSpacing : 0) + state.charSpacing;
+          const advance = (glyph.width ?? 0) * advanceScale + spacing * state.fontDirection;
+          const text = (glyph.unicode ?? '').replace(/[\u0000-\u001F\uFFFD]/g, '');
+          if (text.trim()) {
+            const [gx, gy] = Util.applyTransform([state.x + x * hScale, state.y + state.rise], m);
+            items.push({ text, x: gx, y: gy, width: Math.abs(advance * hScale) * scale, height });
+          }
+          x += advance;
+        }
+        state.x += x * hScale;
+        break;
+      }
+    }
+  });
+  return items;
 }
 
 /**
@@ -387,12 +545,12 @@ function rulingsOf(operators: { fnArray: number[]; argsArray: unknown[] }, viewp
 }
 
 /** Joins items that touch into cells, splitting where the gap is wide. */
-function chunks(line: Line): Item[] {
+function chunks(line: Line, gap = GAP): Item[] {
   const out: Item[] = [];
   for (const item of line.items) {
     const last = out.at(-1);
-    if (last && item.x - (last.x + last.width) < GAP) {
-      const spacer = item.x - (last.x + last.width) > 1 && !last.text.endsWith(' ') ? ' ' : '';
+    if (last && item.x - (last.x + last.width) < gap) {
+      const spacer = item.x - (last.x + last.width) > Math.max(0.8, item.height * 0.12) && !last.text.endsWith(' ') ? ' ' : '';
       last.text += spacer + item.text;
       last.width = item.x + item.width - last.x;
     } else {
@@ -400,6 +558,33 @@ function chunks(line: Line): Item[] {
     }
   }
   return out;
+}
+
+/** Single words: glyphs closer than a fraction of a space. */
+function words(line: Line): Item[] {
+  return chunks(line, Math.max(0.8, line.height * 0.12));
+}
+
+/**
+ * Header cells: words closer than --gap are one title ("Submission Type"),
+ * unless the next word is itself a different column title — narrow tables
+ * print "assessment_year zone_name" or "Type Assessment" almost touching.
+ */
+function headerCells(line: Line): Item[] {
+  const cells: { item: Item; key: ColumnKey | null }[] = [];
+  for (const word of words(line)) {
+    const key = headerKey(word.text);
+    const last = cells.at(-1);
+    const near = last && word.x - (last.item.x + last.item.width) < GAP;
+    if (last && near && !(key && last.key && key !== last.key)) {
+      last.item.text += ` ${word.text}`;
+      last.item.width = word.x + word.width - last.item.x;
+      last.key ??= key;
+    } else {
+      cells.push({ item: { ...word }, key });
+    }
+  }
+  return cells.map((c) => c.item);
 }
 
 function lineText(line: Line) {
@@ -429,7 +614,7 @@ function kindOf(columns: Column[]): Kind | null {
 
 /** Any 5+ digit run: a TIN/BIN-like value, so the line is data, not header. */
 function looksLikeData(line: Line) {
-  return line.items.some((item) => /\d{5,}/.test(asciiDigits(item.text).replace(/[\s-]/g, '')));
+  return words(line).some((word) => /\d{5,}/.test(asciiDigits(word.text).replace(/[\s-]/g, '')));
 }
 
 /**
@@ -439,7 +624,7 @@ function looksLikeData(line: Line) {
  * Returns the layout and the index of the last header line.
  */
 function detectHeader(lines: Line[], index: number, ys: number[]): { layout: Layout; end: number } | null {
-  const base = chunks(lines[index]);
+  const base = headerCells(lines[index]);
   const hits = base.map((cell) => headerKey(cell.text)).filter(Boolean);
   if (hits.length < 2 || !hits.some((k) => k === 'tin' || k === 'bin')) return null;
 
@@ -452,7 +637,7 @@ function detectHeader(lines: Line[], index: number, ys: number[]): { layout: Lay
   // Without them: neighbouring lines at a consistent spacing that are not
   // data and do not straddle several header titles (e.g. a title paragraph).
   const straddles = (line: Line) =>
-    chunks(line).some((c) => base.filter((b) => c.x < b.x + b.width && c.x + c.width > b.x).length > 1);
+    words(line).some((c) => base.filter((b) => c.x < b.x + b.width && c.x + c.width > b.x).length > 1);
   let step = 0;
   const accept = (candidate: Line, neighbour: Line) => {
     if (looksLikeData(candidate)) return false;
@@ -470,7 +655,7 @@ function detectHeader(lines: Line[], index: number, ys: number[]): { layout: Lay
 
   // Group the block's text into columns by horizontal overlap.
   const groups: { left: number; right: number; parts: Item[] }[] = [];
-  const cells = lines.slice(first, last + 1).flatMap((line) => chunks(line));
+  const cells = lines.slice(first, last + 1).flatMap((line) => headerCells(line));
   cells.sort((a, b) => a.x - b.x);
   for (const cell of cells) {
     const group = groups.find((g) => cell.x < g.right + 2 && cell.x + cell.width > g.left - 2);
@@ -603,7 +788,7 @@ function rowsOnPage(
 
   // Text that crosses a column boundary is a title/footer, never a cell.
   const straddles = (line: Line) =>
-    line.items.some((item) => layout.bounds.some((b) => item.x < b - 1 && item.x + item.width > b + 1));
+    words(line).some((word) => layout.bounds.some((b) => word.x < b - 1 && word.x + word.width > b + 1));
   // Cell text above the first row, continuing a row split by the page break.
   const carried: string[][] = [];
 
@@ -1066,7 +1251,11 @@ async function main() {
   if (duplicates) console.log(`${duplicates} duplicate row(s) across/within files were dropped (first occurrence kept).`);
   for (const r of results) {
     const reasons = new Map<string, number>();
-    for (const reject of r.rejects) reasons.set(reject.reason.replace(/".*"/, '"…"'), (reasons.get(reject.reason.replace(/".*"/, '"…"')) ?? 0) + 1);
+    for (const reject of r.rejects) {
+      // Group by kind of problem, not by the specific row it mentions.
+      const reason = reject.reason.replace(/".*"/, '"…"').replace(/^Duplicate of .* with/, 'Duplicate with');
+      reasons.set(reason, (reasons.get(reason) ?? 0) + 1);
+    }
     for (const [reason, count] of reasons) console.log(`  ${r.file}: ${count} × ${reason}`);
   }
   console.log(`Reports written to ${path.resolve(opts.out!)}`);
