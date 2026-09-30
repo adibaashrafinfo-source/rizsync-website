@@ -132,6 +132,7 @@ function SearchCard({
 
 function ResultPanel({ result }: { result: AuditResult }) {
   if (result.status === 'found') {
+    // A TIN can be selected in more than one assessment year: one block each.
     const rows: [string, string][] =
       result.kind === 'bin'
         ? [
@@ -142,11 +143,13 @@ function ResultPanel({ result }: { result: AuditResult }) {
           ]
         : [
             ['TIN', result.record.tin],
-            ['Name', result.record.name],
-            ...(result.record.assessment_year ? ([['Assessment year', result.record.assessment_year]] as [string, string][]) : []),
-            ...Object.entries(result.record.details ?? {}).map(
-              ([key, value]) => [key, String(value ?? '')] as [string, string],
-            ),
+            ...(result.record.name ? ([['Name', result.record.name]] as [string, string][]) : []),
+            ...(result.records ?? [result.record]).flatMap((record) => [
+              ...(record.assessment_year ? ([['Assessment year', record.assessment_year]] as [string, string][]) : []),
+              ...Object.entries(record.details ?? {}).map(
+                ([key, value]) => [key, String(value ?? '')] as [string, string],
+              ),
+            ]),
           ];
 
     return (
@@ -167,8 +170,14 @@ function ResultPanel({ result }: { result: AuditResult }) {
           </div>
         </div>
         <dl className="divide-y divide-line">
-          {rows.map(([label, value]) => (
-            <div key={label} className="grid gap-1 px-6 py-3.5 sm:grid-cols-[200px_1fr] sm:gap-4 md:px-7">
+          {rows.map(([label, value], index) => (
+            <div
+              key={`${label}-${index}`}
+              className={cn(
+                'grid gap-1 px-6 py-3.5 sm:grid-cols-[200px_1fr] sm:gap-4 md:px-7',
+                label === 'Assessment year' && index > 1 && 'border-t-2 border-t-orange/30',
+              )}
+            >
               <dt className="text-[13px] font-semibold tracking-wide text-muted uppercase">{label}</dt>
               <dd className={cn('text-[15px] text-navy', /BIN|TIN/.test(label) && 'font-mono font-semibold tracking-wider')}>
                 {value || '—'}

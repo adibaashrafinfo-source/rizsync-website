@@ -20,7 +20,8 @@ export interface AuditTinRecord {
 
 export type AuditResult =
   | { status: 'found'; kind: 'bin'; record: AuditBinRecord }
-  | { status: 'found'; kind: 'tin'; record: AuditTinRecord }
+  /** `records` holds every selected assessment year, latest first. */
+  | { status: 'found'; kind: 'tin'; record: AuditTinRecord; records: AuditTinRecord[] }
   | { status: 'not_found'; kind: AuditKind; query: string }
   | { status: 'invalid'; kind: AuditKind }
   | { status: 'error'; kind: AuditKind };

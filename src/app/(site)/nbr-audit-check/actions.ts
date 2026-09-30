@@ -18,5 +18,9 @@ export async function checkAudit(kind: AuditKind, query: string): Promise<AuditR
   if (error || !data) return { status: 'error', kind };
   if (data.error === 'invalid') return { status: 'invalid', kind };
   if (!data.found) return { status: 'not_found', kind, query: value };
-  return { status: 'found', kind, record: data.record } as AuditResult;
+  if (kind === 'tin') {
+    const records = Array.isArray(data.records) && data.records.length ? data.records : [data.record];
+    return { status: 'found', kind, record: data.record, records };
+  }
+  return { status: 'found', kind, record: data.record };
 }
