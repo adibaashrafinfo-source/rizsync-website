@@ -29,7 +29,7 @@ function useScrolled(threshold = 40) {
 }
 
 const linkBase =
-  'relative inline-flex h-10 items-center gap-1 rounded-btn px-3 text-[15px] font-medium transition-colors';
+  'relative inline-flex h-10 items-center gap-1 whitespace-nowrap rounded-btn px-2.5 text-[15px] font-medium transition-colors';
 
 /** Global sticky header — HOME_REDESIGN.md §4.1. */
 export function Header() {
@@ -56,7 +56,7 @@ export function Header() {
       >
         <Logo className="shrink-0" />
 
-        <div className="hidden items-center gap-2 lg:flex">
+        <div className="hidden items-center gap-2 xl:flex">
           <NavigationMenu.Root delayDuration={80} className="relative" aria-label="Main">
             <NavigationMenu.List className="flex items-center gap-0.5">
               {mainNav.map((link) => {
@@ -109,23 +109,23 @@ export function Header() {
             </div>
           </NavigationMenu.Root>
 
-          <span aria-hidden className="mx-3 h-6 w-px bg-white/15" />
+          <span aria-hidden className="mx-2 hidden h-6 w-px bg-white/15 2xl:block" />
 
           <a
             href={siteConfig.contact.phoneHref}
-            className="hidden items-center gap-2 rounded-btn px-1 text-[15px] font-semibold whitespace-nowrap text-white transition-colors hover:text-gold xl:inline-flex"
+            className="hidden items-center gap-2 rounded-btn px-1 text-[15px] font-semibold whitespace-nowrap text-white transition-colors hover:text-gold 2xl:inline-flex"
           >
             <Phone aria-hidden className="h-4 w-4 text-gold" strokeWidth={2} />
             {siteConfig.contact.phoneDisplay}
           </a>
 
-          <Button asChild size="md" className="ml-3">
+          <Button asChild size="md" className="ml-2 whitespace-nowrap">
             <Link href={isHome ? CTA_HOME_HREF : CTA_HREF}>{CTA_LABEL}</Link>
           </Button>
         </div>
 
-        {/* < 1024px: phone icon + hamburger */}
-        <div className="flex items-center gap-1 lg:hidden">
+        {/* < 1280px: phone icon + hamburger */}
+        <div className="flex items-center gap-1 xl:hidden">
           <a
             href={siteConfig.contact.phoneHref}
             aria-label={`Call ${siteConfig.contact.phoneDisplay}`}

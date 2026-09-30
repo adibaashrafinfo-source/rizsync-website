@@ -223,3 +223,31 @@ export interface Testimonial {
   rating: number;
   photo?: string | null;
 }
+
+/* -------------------------------------------------------------------- ceo */
+
+export type ExpertiseColor = 'green' | 'blue' | 'orange' | 'purple' | 'teal';
+
+export interface CeoContent {
+  hero: { eyebrow: string; title: string; description: string };
+  name: string;
+  credentials: string;
+  role: string;
+  headline: string;
+  photo: string;
+  photoAlt: string;
+  /** Paragraphs separated by a blank line. */
+  summary: string;
+  location: string;
+  email: string;
+  highlights: { value: string; label: string }[];
+  experienceSection: { eyebrow: string; title: string };
+  experience: { role: string; company: string; period: string; summary: string; points: string[] }[];
+  achievements: { title: string; text: string; period: string }[];
+  skills: string[];
+  certifications: string[];
+  education: { degree: string; institution: string }[];
+  expertiseSection: { eyebrow: string; /** markup */ title: string; body: string };
+  expertise: { title: string; note: string; icon: string; color: ExpertiseColor }[];
+  cta: { title: string; description: string };
+}

@@ -396,7 +396,7 @@ export function isEntityKey(value: string): value is EntityKey {
 
 /* -------------------------------------------------------------- documents */
 
-export type DocKey = 'settings' | 'home' | 'about';
+export type DocKey = 'settings' | 'home' | 'about' | 'ceo';
 
 export interface DocConfig {
   key: DocKey;
@@ -804,6 +804,149 @@ export const docs: Record<DocKey, DocConfig> = {
           heading('teamSection', 'Team heading', [
             { name: 'description', label: 'Intro', type: 'textarea', rows: 2 },
           ]),
+          {
+            name: 'cta',
+            label: 'Call to action',
+            type: 'group',
+            fields: [
+              { name: 'title', label: 'Heading', type: 'text' },
+              { name: 'description', label: 'Text', type: 'textarea', rows: 2 },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  ceo: {
+    key: 'ceo',
+    title: 'CEO profile',
+    description: 'The CEO Profile page — photo, biography, career, achievements and the expertise list.',
+    publicPath: '/ceo-profile',
+    sections: [
+      {
+        title: 'Page header',
+        fields: [
+          {
+            name: 'hero',
+            label: 'Header',
+            type: 'group',
+            fields: [
+              { name: 'eyebrow', label: 'Small label', type: 'text', half: true },
+              { name: 'title', label: 'Title', type: 'text', half: true },
+              { name: 'description', label: 'Subtitle', type: 'textarea', rows: 2 },
+            ],
+          },
+        ],
+      },
+      {
+        title: 'Profile',
+        fields: [
+          { name: 'name', label: 'Full name', type: 'text', required: true, half: true },
+          { name: 'credentials', label: 'Credentials', type: 'text', half: true, help: 'e.g. MBA (NSU)' },
+          { name: 'role', label: 'Role', type: 'text' },
+          { name: 'headline', label: 'Headline', type: 'text' },
+          { name: 'photo', label: 'Photo', type: 'image', folder: 'team', help: 'Portrait works best.' },
+          { name: 'photoAlt', label: 'Photo description (alt text)', type: 'text' },
+          { name: 'summary', label: 'Biography', type: 'textarea', rows: 8, help: 'Leave an empty line between paragraphs.' },
+          { name: 'location', label: 'Location', type: 'text', half: true },
+          { name: 'email', label: 'Public email (optional)', type: 'email', half: true },
+          {
+            name: 'highlights',
+            label: 'Key numbers',
+            type: 'repeater',
+            itemLabel: 'label',
+            fields: [
+              { name: 'value', label: 'Number', type: 'text', half: true },
+              { name: 'label', label: 'Label', type: 'text', half: true },
+            ],
+          },
+        ],
+      },
+      {
+        title: 'Career',
+        fields: [
+          heading('experienceSection', 'Section heading'),
+          {
+            name: 'experience',
+            label: 'Experience',
+            type: 'repeater',
+            itemLabel: 'role',
+            fields: [
+              { name: 'role', label: 'Role', type: 'text', required: true },
+              { name: 'company', label: 'Company', type: 'text', half: true },
+              { name: 'period', label: 'Period', type: 'text', half: true, help: 'e.g. 07/2025 – Present' },
+              { name: 'summary', label: 'Summary', type: 'textarea', rows: 3 },
+              { name: 'points', label: 'Key points', type: 'list' },
+            ],
+          },
+          {
+            name: 'achievements',
+            label: 'Achievements',
+            type: 'repeater',
+            itemLabel: 'title',
+            fields: [
+              { name: 'title', label: 'Title', type: 'text', half: true },
+              { name: 'period', label: 'Year / period', type: 'text', half: true },
+              { name: 'text', label: 'Text', type: 'textarea', rows: 3 },
+            ],
+          },
+        ],
+      },
+      {
+        title: 'Skills & education',
+        fields: [
+          { name: 'skills', label: 'Skills', type: 'list' },
+          { name: 'certifications', label: 'Certifications', type: 'list' },
+          {
+            name: 'education',
+            label: 'Education',
+            type: 'repeater',
+            itemLabel: 'degree',
+            fields: [
+              { name: 'degree', label: 'Degree', type: 'text', half: true },
+              { name: 'institution', label: 'Institution', type: 'text', half: true },
+            ],
+          },
+        ],
+      },
+      {
+        title: 'Expertise',
+        description: '"Expertise Behind Every Solution" — the service list with coloured icons.',
+        fields: [
+          {
+            name: 'expertiseSection',
+            label: 'Section heading',
+            type: 'group',
+            fields: [
+              { name: 'eyebrow', label: 'Small label', type: 'text', half: true },
+              { name: 'title', label: 'Heading', type: 'markup', half: true, help: markupHelp },
+              { name: 'body', label: 'Intro', type: 'textarea', rows: 2 },
+            ],
+          },
+          {
+            name: 'expertise',
+            label: 'Services',
+            type: 'repeater',
+            itemLabel: 'title',
+            fields: [
+              { name: 'title', label: 'Service', type: 'text', required: true },
+              { name: 'note', label: 'Small note (optional)', type: 'text' },
+              { name: 'icon', label: 'Icon', type: 'icon', half: true },
+              {
+                name: 'color',
+                label: 'Colour',
+                type: 'select',
+                half: true,
+                options: [
+                  { value: 'green', label: 'Green' },
+                  { value: 'blue', label: 'Blue' },
+                  { value: 'orange', label: 'Orange' },
+                  { value: 'purple', label: 'Purple' },
+                  { value: 'teal', label: 'Teal' },
+                ],
+              },
+            ],
+          },
           {
             name: 'cta',
             label: 'Call to action',

@@ -1,6 +1,7 @@
 import { defaultSettings } from '@/config/site';
 import { defaultHome } from '@/data/home';
 import { defaultAbout } from '@/data/about';
+import { defaultCeo } from '@/data/ceo';
 import { defaultServices } from '@/data/services';
 import { defaultTeam } from '@/data/team';
 import { defaultTestimonials } from '@/data/testimonials';
@@ -138,7 +139,7 @@ export async function getRow(session: AdminSession, key: EntityKey, id: string):
   return (data as Row) ?? null;
 }
 
-const docDefaults = { settings: defaultSettings, home: defaultHome, about: defaultAbout };
+const docDefaults = { settings: defaultSettings, home: defaultHome, about: defaultAbout, ceo: defaultCeo };
 
 export async function getDoc(session: AdminSession, key: DocKey): Promise<Record<string, unknown>> {
   const fallback = docDefaults[key] as unknown as Record<string, unknown>;

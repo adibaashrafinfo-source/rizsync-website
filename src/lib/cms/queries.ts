@@ -5,6 +5,7 @@ import { supabaseConfigured } from '@/lib/supabase/config';
 import { defaultSettings, resolveSiteConfig } from '@/config/site';
 import { defaultHome } from '@/data/home';
 import { defaultAbout } from '@/data/about';
+import { defaultCeo } from '@/data/ceo';
 import { defaultServices } from '@/data/services';
 import { defaultTeam } from '@/data/team';
 import { defaultTestimonials } from '@/data/testimonials';
@@ -12,6 +13,7 @@ import { defaultFaqs } from '@/data/faqs';
 import { slugify } from '@/lib/utils';
 import type {
   AboutContent,
+  CeoContent,
   Faq,
   HomeContent,
   Service,
@@ -100,6 +102,14 @@ export async function getAboutContent(): Promise<AboutContent> {
     async () => mergeDefaults(defaultAbout, (await loadDocs()).about),
     defaultAbout,
     'about',
+  );
+}
+
+export async function getCeoContent(): Promise<CeoContent> {
+  return withFallback(
+    async () => mergeDefaults(defaultCeo, (await loadDocs()).ceo),
+    defaultCeo,
+    'ceo',
   );
 }
 

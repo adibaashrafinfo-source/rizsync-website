@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   ExternalLink,
+  FileSearch,
   FileText,
   HelpCircle,
   Home,
@@ -18,6 +19,7 @@ import {
   Newspaper,
   Settings,
   UserCog,
+  UserRound,
   Users,
   X,
   type LucideIcon,
@@ -47,6 +49,7 @@ function navGroups(newLeads: number): { label: string; items: NavItem[] }[] {
       items: [
         { href: '/admin/pages/home', label: 'Home page', icon: Home },
         { href: '/admin/pages/about', label: 'About page', icon: Info },
+        { href: '/admin/pages/ceo', label: 'CEO profile', icon: UserRound },
       ],
     },
     {
@@ -57,6 +60,7 @@ function navGroups(newLeads: number): { label: string; items: NavItem[] }[] {
         { href: '/admin/team_members', label: 'Our Team', icon: Users },
         { href: '/admin/testimonials', label: 'Testimonials', icon: MessageSquareQuote },
         { href: '/admin/faqs', label: 'FAQs', icon: HelpCircle },
+        { href: '/admin/audit', label: 'NBR audit lists', icon: FileSearch },
       ],
     },
     {

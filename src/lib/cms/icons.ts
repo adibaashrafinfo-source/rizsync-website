@@ -25,6 +25,15 @@ import {
   Sparkles,
   Users,
   Wallet,
+  ClipboardCheck,
+  FileSpreadsheet,
+  FolderCheck,
+  HandCoins,
+  LineChart,
+  Monitor,
+  Percent,
+  Search,
+  TrendingUp,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -59,6 +68,15 @@ export const iconRegistry: Record<string, LucideIcon> = {
   Sparkles,
   Users,
   Wallet,
+  ClipboardCheck,
+  FileSpreadsheet,
+  FolderCheck,
+  HandCoins,
+  LineChart,
+  Monitor,
+  Percent,
+  Search,
+  TrendingUp,
 };
 
 export const iconNames = Object.keys(iconRegistry);
