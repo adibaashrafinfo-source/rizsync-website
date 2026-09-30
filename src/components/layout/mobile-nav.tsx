@@ -14,9 +14,9 @@ import {
 } from '@/components/ui/accordion';
 import { WhatsAppIcon } from '@/components/ui/social-icons';
 import { Logo } from '@/components/layout/logo';
-import { siteConfig } from '@/config/site';
 import { CTA_HOME_HREF, CTA_HREF, CTA_LABEL, mainNav } from '@/config/nav';
-import { services } from '@/data/services';
+import { useSiteData } from '@/components/providers/site-data';
+import { getIcon } from '@/lib/cms/icons';
 import { pillarTheme } from '@/lib/pillar';
 import { cn } from '@/lib/utils';
 
@@ -24,6 +24,7 @@ import { cn } from '@/lib/utils';
 export function MobileNav({ isHome }: { isHome: boolean }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const { config: siteConfig, services } = useSiteData();
 
   // Close the sheet once navigation lands.
   useEffect(() => setOpen(false), [pathname]);
@@ -76,7 +77,7 @@ export function MobileNav({ isHome }: { isHome: boolean }) {
                         <AccordionContent className="pr-0 pb-3">
                           <ul className="flex flex-col gap-0.5">
                             {services.map((service) => {
-                              const Icon = service.icon;
+                              const Icon = getIcon(service.icon);
                               return (
                                 <li key={service.slug}>
                                   <Link

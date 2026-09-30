@@ -12,9 +12,9 @@ const csp = [
   // bootstrap; nonces would need middleware and are a later optimisation.
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com https://connect.facebook.net",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://www.googletagmanager.com https://www.google-analytics.com https://www.facebook.com https://maps.gstatic.com https://maps.googleapis.com",
+  "img-src 'self' data: blob: https://*.supabase.co https://www.googletagmanager.com https://www.google-analytics.com https://www.facebook.com https://maps.gstatic.com https://maps.googleapis.com",
   "font-src 'self' data:",
-  "connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://challenges.cloudflare.com",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com https://challenges.cloudflare.com",
   "frame-src 'self' https://challenges.cloudflare.com https://www.google.com https://www.googletagmanager.com",
   "form-action 'self'",
   "frame-ancestors 'none'",
@@ -43,6 +43,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
     formats: ['image/avif', 'image/webp'],
+    // Photos and covers uploaded through the admin panel live in Supabase Storage.
+    remotePatterns: [{ protocol: 'https', hostname: '*.supabase.co', pathname: '/storage/v1/object/public/**' }],
   },
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];

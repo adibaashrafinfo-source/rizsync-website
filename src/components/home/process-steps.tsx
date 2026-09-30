@@ -1,8 +1,7 @@
 import { Section } from '@/components/ui/section';
 import { SectionHeading } from '@/components/ui/section-heading';
 import { Reveal } from '@/components/ui/reveal';
-import { processSteps } from '@/data/process';
-import { processSection } from '@/data/home';
+import { getHomeContent } from '@/lib/cms/queries';
 import { cn } from '@/lib/utils';
 
 const circleClass = {
@@ -17,15 +16,19 @@ const circleClass = {
  * connecting rule passing behind the number circles; a vertical timeline
  * with the rule on the left below that. Also used on every service page.
  */
-export function ProcessSteps({
-  eyebrow = processSection.eyebrow,
-  title = processSection.title,
+export async function ProcessSteps({
+  eyebrow,
+  title,
   className,
 }: {
   eyebrow?: string;
   title?: string;
   className?: string;
 }) {
+  const { processSection, processSteps } = await getHomeContent();
+  eyebrow ??= processSection.eyebrow;
+  title ??= processSection.title;
+
   return (
     <Section className={cn('bg-mist', className)} labelledBy="process-heading">
       <SectionHeading id="process-heading" eyebrow={eyebrow} title={title} />
@@ -38,7 +41,7 @@ export function ProcessSteps({
         />
 
         {processSteps.map((step, index) => (
-          <li key={step.step} className="relative">
+          <li key={`${step.title}-${index}`} className="relative">
             <Reveal delay={index * 0.07}>
               <div className="flex gap-5 md:flex-col md:items-center md:gap-0 md:text-center">
                 <span
@@ -47,7 +50,7 @@ export function ProcessSteps({
                     circleClass[step.color],
                   )}
                 >
-                  {step.step}
+                  {index + 1}
                 </span>
                 <div className="pt-3 md:pt-0">
                   <h3 className="font-display text-lg font-bold text-navy md:mt-6 md:text-xl">

@@ -4,8 +4,7 @@ import { Eyebrow } from '@/components/ui/eyebrow';
 import { Reveal } from '@/components/ui/reveal';
 import { WhatsAppIcon } from '@/components/ui/social-icons';
 import { ConsultationFormBoundary } from '@/components/forms/consultation-form-boundary';
-import { consultationSection } from '@/data/home';
-import { siteConfig } from '@/config/site';
+import { getHomeContent, getSiteConfig } from '@/lib/cms/queries';
 
 const tileBase =
   'flex h-12 w-12 shrink-0 items-center justify-center rounded-btn';
@@ -15,7 +14,11 @@ const tileBase =
  * `id="consultation"` is the target of every "Request Consultation" on the
  * home page. Also used at the foot of each service page.
  */
-export function ConsultationSection({ defaultSubject }: { defaultSubject?: string }) {
+export async function ConsultationSection({ defaultSubject }: { defaultSubject?: string }) {
+  const [{ consultationSection }, siteConfig] = await Promise.all([
+    getHomeContent(),
+    getSiteConfig(),
+  ]);
   const office = siteConfig.offices.corporate;
 
   return (
@@ -95,7 +98,10 @@ export function ConsultationSection({ defaultSubject }: { defaultSubject?: strin
           </Reveal>
 
           <Reveal delay={0.08}>
-            <ConsultationFormBoundary defaultSubject={defaultSubject} />
+            <ConsultationFormBoundary
+              defaultSubject={defaultSubject}
+              submitLabel={consultationSection.submit}
+            />
           </Reveal>
         </div>
       </Container>

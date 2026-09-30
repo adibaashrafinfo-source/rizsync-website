@@ -1,64 +1,12 @@
-import {
-  Award,
-  BarChart3,
-  Briefcase,
-  Cpu,
-  Home,
-  Landmark,
-  type LucideIcon,
-} from 'lucide-react';
-import type { PillarColor } from '@/lib/pillar';
+import type { Service } from '@/lib/cms/types';
 
-export interface ServiceContentItem {
-  title: string;
-  description: string;
-}
+export type { Faq, HeroCard, Service, ServiceContentItem } from '@/lib/cms/types';
 
-export interface Faq {
-  question: string;
-  answer: string;
-}
-
-/** The three pillars that get a card beside the hero wheel (HOME_REDESIGN.md §4.3). */
-export interface HeroCard {
-  title: string;
-  subtitle: string;
-  chips: string[];
-}
-
-export interface Service {
-  slug: string;
-  /** "01"–"06", shown on the pillar cards. */
-  number: string;
-  /** Full name — navigation, footer and the consultation Subject list. */
-  title: string;
-  /** Compact name — wheel labels and the quick service bar. */
-  shortTitle: string;
-  /** Present only for the pillars with a card beside the hero wheel. */
-  heroCard?: HeroCard;
-  /** Page heading — DESIGN.md §6.4 table. */
-  h1: string;
-  /** One-liner shown in the header mega-menu and wheel tooltips. */
-  navDescription: string;
-  /** Two-line introduction under the sub-page H1. */
-  intro: string;
-  color: PillarColor;
-  icon: LucideIcon;
-  /** Four bullets on the home-page pillar card, joined with " · ". */
-  bullets: string[];
-  /** "What We Handle" — icon cards on the sub-page. */
-  items: ServiceContentItem[];
-  /** "Why RizSync for this" — three bullets tied to the ethics values. */
-  whyRizsync: { value: string; text: string }[];
-  faqs: Faq[];
-  seo: {
-    title: string;
-    description: string;
-    keywords: string[];
-  };
-}
-
-export const services: Service[] = [
+/**
+ * Default service content — seeded into Supabase and used as the fallback
+ * when the database is unreachable. Edit live content in the admin panel.
+ */
+export const defaultServices: Service[] = [
   {
     slug: 'finance-accounting',
     number: '01',
@@ -69,7 +17,7 @@ export const services: Service[] = [
     intro:
       'Accurate books, compliant filings and clear numbers you can actually make decisions on. We run the finance function so you can run the business.',
     color: 'teal',
-    icon: BarChart3,
+    icon: 'BarChart3',
     bullets: [
       'Tax & VAT Compliance',
       'Treasury Operations',
@@ -166,7 +114,7 @@ export const services: Service[] = [
     intro:
       'From incorporation to annual returns, we keep your company legally sound and your statutory records current — without you queuing at a single counter.',
     color: 'orange',
-    icon: Briefcase,
+    icon: 'Briefcase',
     bullets: [
       'RJSC Registration & Filings',
       'Corporate Documentation',
@@ -263,7 +211,7 @@ export const services: Service[] = [
     intro:
       'Public offices have rules, queues and paperwork. We know all three — and we work inside them, never around them.',
     color: 'teal',
-    icon: Landmark,
+    icon: 'Landmark',
     bullets: [
       'BRTA Services (Vehicle, License)',
       'DNCC & DSCC Matters',
@@ -355,7 +303,7 @@ export const services: Service[] = [
     intro:
       'Technology should remove work, not add a second system to maintain. We automate the repetitive parts of your operation and run what is left.',
     color: 'orange',
-    icon: Cpu,
+    icon: 'Cpu',
     bullets: [
       'Digital Process Automation',
       'ERP & Accounting System Support',
@@ -447,7 +395,7 @@ export const services: Service[] = [
     intro:
       'The same discipline we bring to a balance sheet, applied to a household: what you own, what it must provide for, and how to protect it.',
     color: 'teal',
-    icon: Home,
+    icon: 'Home',
     bullets: [
       'Family Financial Planning',
       'Wealth Assessment & Advisory',
@@ -544,7 +492,7 @@ export const services: Service[] = [
     intro:
       'Six specialisms, one relationship, one standard of conduct. Here is what that is actually worth to a business or a family.',
     color: 'gold',
-    icon: Award,
+    icon: 'Award',
     bullets: [
       'Significant Time Savings',
       'Expert Documentation',
@@ -630,13 +578,4 @@ export const services: Service[] = [
       ],
     },
   },
-];
-
-export const serviceBySlug = (slug: string): Service | undefined =>
-  services.find((service) => service.slug === slug);
-
-/** Subject options for the consultation form (§7). */
-export const subjectOptions = [
-  ...services.map((service) => ({ value: service.slug, label: service.title })),
-  { value: 'other', label: 'Other' },
 ];

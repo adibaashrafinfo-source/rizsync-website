@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { siteConfig } from '@/config/site';
+import { useSiteData } from '@/components/providers/site-data';
 
 /**
  * Google Maps embed — DESIGN.md §6.6.4.
@@ -12,6 +12,7 @@ import { siteConfig } from '@/config/site';
  */
 export function OfficeMap() {
   const ref = useRef<HTMLDivElement>(null);
+  const { config: siteConfig } = useSiteData();
   const [show, setShow] = useState(false);
 
   useEffect(() => {

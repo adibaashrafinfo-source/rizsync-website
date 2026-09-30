@@ -1,55 +1,48 @@
+import type { SiteConfig, SiteSettings } from '@/lib/cms/types';
+
 /**
- * Single source of truth for everything the client may want to change.
+ * Static site constants — the parts that are not edited in the admin panel
+ * (domain, logo, analytics IDs) — plus the default editable settings.
  *
- * DESIGN.md §0 lists ten "Open Items" that still need client confirmation.
- * Each one lives here and nowhere else, so confirming a value is a one-line
- * edit in this file. Items still awaiting confirmation are marked TODO(client).
+ * Live values for everything in `defaultSettings` come from Supabase via
+ * `getSiteConfig()` in `src/lib/cms/queries.ts`; these defaults are what the
+ * site falls back to when the database is unreachable.
  */
-
-const phoneDigits = '8801711504625';
-
-export const siteConfig = {
-  /** §0.1 — official name. Used in H1, footer, schema, metadata. */
-  name: 'RizSync Service Solution',
-  shortName: 'RizSync',
-  legalName: 'RizSync Service Solution',
-
-  tagline: 'Connect • Simplify • Protect • Transform • Grow',
-  /** The tagline split into chips for the hero motto strip. */
-  mottoWords: ['Connect', 'Simplify', 'Protect', 'Transform', 'Grow'] as const,
-
-  description:
-    'RizSync is a multi-disciplinary platform providing expert corporate services, government assistance, and digital transformation, guided by the Quranic business model of trust and integrity.',
-
+export const staticSite = {
   /** Falls back to the production domain so metadataBase is always valid. */
   url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.rizsync.com',
-
-  /** §0.6 — placeholder wordmark until the vector logo arrives. */
+  name: 'RizSync Service Solution',
+  shortName: 'RizSync',
+  description:
+    'RizSync is a multi-disciplinary platform providing expert corporate services, government assistance, and digital transformation, guided by the Quranic business model of trust and integrity.',
   logo: '/logo.svg',
   ogImage: '/opengraph-image',
+  analytics: {
+    gtmId: process.env.NEXT_PUBLIC_GTM_ID || '',
+    metaPixelId: process.env.NEXT_PUBLIC_META_PIXEL_ID || '',
+  },
+} as const;
 
-  /** §0.7 — TODO(client): supply the Dhaka cityscape + circuitry artwork. */
-  heroImage: '/images/hero/hero-bg.webp',
-
+export const defaultSettings: SiteSettings = {
+  name: staticSite.name,
+  shortName: staticSite.shortName,
+  legalName: staticSite.name,
+  tagline: 'Connect • Simplify • Protect • Transform • Grow',
+  description: staticSite.description,
   founded: '2021',
-  /** §0.3 — rendered as "© 2021–{currentYear}". */
   copyrightStartYear: 2021,
-
+  ethicsStatement:
+    'RizSync operates on principles of transparency, integrity, and justice, guided by ethical business practices and the Quranic Business Model.',
+  heroImage: '/images/hero/hero-bg.webp',
   contact: {
-    /** §0.2 — TODO(client): confirm; this address looks unrelated to the brand. */
     email: 'PalzaPast.service@gmail.com',
     phoneDisplay: '+880 1711-504625',
-    phoneHref: `tel:+${phoneDigits}`,
-    whatsappNumber: phoneDigits,
-    whatsappHref: `https://wa.me/${phoneDigits}`,
-    whatsappPrefilled: `https://wa.me/${phoneDigits}?text=${encodeURIComponent(
-      "Assalamu Alaikum, I'd like to request a consultation with RizSync.",
-    )}`,
-    /** TODO(client): confirm business hours. */
+    phoneNumber: '8801711504625',
+    whatsappNumber: '8801711504625',
+    whatsappMessage: "Assalamu Alaikum, I'd like to request a consultation with RizSync.",
     hours: 'Mon–Sat, 10am–7pm',
     openingHoursSchema: 'Mo-Sa 10:00-19:00',
   },
-
   offices: {
     corporate: {
       label: 'Corporate Office',
@@ -57,52 +50,75 @@ export const siteConfig = {
       locality: 'Mirpur',
       region: 'Dhaka',
       country: 'BD',
-      full: '137/10, Mazar Road, Mirpur, Dhaka',
     },
-    /** §0.8 — normalised spelling. TODO(client): confirm. */
     operations: {
       label: 'Business Operation Office',
       street: '8E/A, 1st Colony, Mazar Road',
       locality: 'Mirpur',
       region: 'Dhaka',
       country: 'BD',
-      full: '8E/A, 1st Colony, Mazar Road, Mirpur, Dhaka',
     },
   },
-
-  social: {
-    /** §0.4 — primary of the two Facebook URLs supplied. TODO(client): confirm. */
-    facebook: 'https://www.facebook.com/RizSync.BD.Official/',
-    /** §0.5 — TODO(client): LinkedIn company page URL not yet provided. */
-    linkedin: '#',
-  },
-
-  /** Google Maps embed for the Corporate Office (§6.6.4). */
   mapEmbedSrc:
     'https://www.google.com/maps?q=137/10%20Mazar%20Road,%20Mirpur,%20Dhaka,%20Bangladesh&output=embed',
   mapDirectionsUrl:
     'https://www.google.com/maps/dir/?api=1&destination=137%2F10%20Mazar%20Road%2C%20Mirpur%2C%20Dhaka%2C%20Bangladesh',
-
-  ethicsStatement:
-    'RizSync operates on principles of transparency, integrity, and justice, guided by ethical business practices and the Quranic Business Model.',
-
-  analytics: {
-    gtmId: process.env.NEXT_PUBLIC_GTM_ID || '',
-    metaPixelId: process.env.NEXT_PUBLIC_META_PIXEL_ID || '',
+  social: {
+    facebook: 'https://www.facebook.com/RizSync.BD.Official/',
+    linkedin: '',
+    instagram: '',
+    youtube: '',
+    x: '',
+    tiktok: '',
   },
-} as const;
+};
 
-export type SiteConfig = typeof siteConfig;
+const digits = (value: string) => value.replace(/\D/g, '');
 
-/** "© 2021–2026" — §0.3. */
-export function copyrightRange(now: Date = new Date()): string {
+/** Adds the values derived from the editable settings (links, full addresses). */
+export function resolveSiteConfig(settings: SiteSettings): SiteConfig {
+  const phone = digits(settings.contact.phoneNumber);
+  const whatsapp = digits(settings.contact.whatsappNumber) || phone;
+  const withFull = (office: SiteSettings['offices']['corporate']) => ({
+    ...office,
+    full: [office.street, office.locality, office.region].filter(Boolean).join(', '),
+  });
+
+  return {
+    ...settings,
+    url: staticSite.url,
+    logo: staticSite.logo,
+    ogImage: staticSite.ogImage,
+    analytics: staticSite.analytics,
+    mottoWords: settings.tagline
+      .split(/[•·|]/)
+      .map((word) => word.trim())
+      .filter(Boolean),
+    contact: {
+      ...settings.contact,
+      phoneHref: `tel:+${phone}`,
+      whatsappHref: `https://wa.me/${whatsapp}`,
+      whatsappPrefilled: `https://wa.me/${whatsapp}?text=${encodeURIComponent(
+        settings.contact.whatsappMessage,
+      )}`,
+    },
+    offices: {
+      corporate: withFull(settings.offices.corporate),
+      operations: withFull(settings.offices.operations),
+    },
+  };
+}
+
+/** Default resolved config — for code paths with no database (e.g. metadata). */
+export const siteConfig = resolveSiteConfig(defaultSettings);
+
+/** "© 2021–2026". */
+export function copyrightRange(startYear: number, now: Date = new Date()): string {
   const year = now.getFullYear();
-  return year > siteConfig.copyrightStartYear
-    ? `${siteConfig.copyrightStartYear}–${year}`
-    : `${siteConfig.copyrightStartYear}`;
+  return year > startYear ? `${startYear}–${year}` : `${startYear}`;
 }
 
 /** Absolute URL helper — schema and metadata need fully-qualified links. */
 export function absoluteUrl(path = '/'): string {
-  return new URL(path, siteConfig.url).toString();
+  return new URL(path, staticSite.url).toString();
 }

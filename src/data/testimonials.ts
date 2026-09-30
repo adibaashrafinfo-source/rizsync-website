@@ -1,16 +1,10 @@
+import type { Testimonial } from '@/lib/cms/types';
+
 /**
  * DESIGN.md §6.1 ⑧ — TODO(client): replace with real, attributable testimonials.
  * Do not publish these placeholders; they describe no real client.
  */
-export interface Testimonial {
-  quote: string;
-  name: string;
-  role: string;
-  company: string;
-  rating: number;
-}
-
-export const testimonials: Testimonial[] = [
+export const defaultTestimonials: Testimonial[] = [
   {
     quote:
       'We had three separate people handling tax, RJSC filings and licence renewals, and none of them spoke to each other. RizSync took all of it. The first thing they did was show us a calendar of every deadline we had been missing.',

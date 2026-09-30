@@ -2,18 +2,18 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
-import { ctaBanner } from '@/data/home';
+import { getHomeContent } from '@/lib/cms/queries';
 import { cn } from '@/lib/utils';
 
 /**
  * Container-width navy panel with two decorative rings — HOME_REDESIGN.md
  * §4.11. Shared by the inner pages, which pass their own copy.
  */
-export function CtaBanner({
-  title = ctaBanner.title,
-  description = ctaBanner.body,
+export async function CtaBanner({
+  title,
+  description,
   href = '/contact#consultation-form',
-  label = ctaBanner.cta,
+  label,
   className,
 }: {
   title?: string;
@@ -22,6 +22,11 @@ export function CtaBanner({
   label?: string;
   className?: string;
 }) {
+  const { ctaBanner } = await getHomeContent();
+  title ??= ctaBanner.title;
+  description ??= ctaBanner.body;
+  label ??= ctaBanner.cta;
+
   return (
     <section aria-labelledby="cta-heading" className={cn('bg-white py-14 md:py-[72px] xl:py-24', className)}>
       <Container>

@@ -2,7 +2,7 @@
 
 import Script from 'next/script';
 import { GoogleTagManager } from '@next/third-parties/google';
-import { siteConfig } from '@/config/site';
+import { staticSite as siteConfig } from '@/config/site';
 
 /**
  * GA4 is loaded through Google Tag Manager (§2). Meta Pixel sits behind an env

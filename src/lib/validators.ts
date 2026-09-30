@@ -1,13 +1,10 @@
 import { z } from 'zod';
-import { services } from '@/data/services';
 
 /** Bangladeshi mobile numbers, with or without the country code (§7). */
 export const bdPhoneRegex = /^(?:\+?88)?01[3-9]\d{8}$/;
 
 export const clientTypes = ['Business', 'Corporate', 'Individual & Family'] as const;
 export const preferredContacts = ['Phone', 'WhatsApp', 'Email'] as const;
-
-const subjectValues = [...services.map((service) => service.slug), 'other'] as const;
 
 export const consultationSchema = z.object({
   name: z
@@ -41,7 +38,11 @@ export const consultationSchema = z.object({
 
   clientType: z.enum(clientTypes, { message: 'Please choose which best describes you.' }),
 
-  subject: z.enum(subjectValues, { message: 'Please choose a subject.' }),
+  subject: z
+    .string({ message: 'Please choose a subject.' })
+    .trim()
+    .min(1, 'Please choose a subject.')
+    .max(100),
 
   message: z
     .string()
@@ -76,6 +77,6 @@ export const consultationSchema = z.object({
 export type ConsultationInput = z.infer<typeof consultationSchema>;
 
 /** Human-readable subject for the notification email and the auto-reply. */
-export function subjectLabel(value: string): string {
+export function subjectLabel(value: string, services: { slug: string; title: string }[]): string {
   return services.find((service) => service.slug === value)?.title ?? 'Other';
 }

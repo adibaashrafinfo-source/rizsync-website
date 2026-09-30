@@ -1,6 +1,12 @@
 import { Resend } from 'resend';
-import { siteConfig } from '@/config/site';
-import { subjectLabel, type ConsultationInput } from '@/lib/validators';
+import type { ConsultationInput } from '@/lib/validators';
+import type { SiteConfig } from '@/lib/cms/types';
+
+/** Live site settings plus the human-readable subject of this request. */
+export interface EmailContext {
+  config: SiteConfig;
+  subject: string;
+}
 
 /** Escape anything that came from the form before it enters an HTML email. */
 function escapeHtml(value: string): string {
@@ -26,7 +32,7 @@ function row(label: string, value: string): string {
     </tr>`;
 }
 
-function shell(title: string, inner: string): string {
+function shell(title: string, inner: string, siteConfig: SiteConfig): string {
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title></head>
 <body style="margin:0;padding:24px;background:#F5F7FA;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
@@ -48,7 +54,7 @@ function shell(title: string, inner: string): string {
 </body></html>`;
 }
 
-function notificationHtml(data: ConsultationInput): string {
+function notificationHtml(data: ConsultationInput, { config, subject }: EmailContext): string {
   return shell(
     'New consultation request',
     `
@@ -60,7 +66,7 @@ function notificationHtml(data: ConsultationInput): string {
       ${row('Email', data.email)}
       ${row('Phone', data.phone)}
       ${row('Client type', data.clientType)}
-      ${row('Subject', subjectLabel(data.subject))}
+      ${row('Subject', subject)}
       ${data.preferredContact ? row('Preferred contact', data.preferredContact) : ''}
     </table>
     <h2 style="margin:24px 0 8px;color:${NAVY};font-size:15px;">Message</h2>
@@ -72,10 +78,11 @@ function notificationHtml(data: ConsultationInput): string {
         data.name,
       )}</a>
     </p>`,
+    config,
   );
 }
 
-function autoReplyHtml(data: ConsultationInput): string {
+function autoReplyHtml(data: ConsultationInput, { config, subject }: EmailContext): string {
   return shell(
     'We have received your request',
     `
@@ -83,17 +90,17 @@ function autoReplyHtml(data: ConsultationInput): string {
       data.name,
     )},</h1>
     <p style="margin:0 0 14px;color:${INK};font-size:15px;line-height:1.7;">
-      Thank you for contacting ${escapeHtml(siteConfig.name)}. We have received your request
-      regarding <strong>${escapeHtml(subjectLabel(data.subject))}</strong> and a member of our
+      Thank you for contacting ${escapeHtml(config.name)}. We have received your request
+      regarding <strong>${escapeHtml(subject)}</strong> and a member of our
       team will contact you within one business day, In sh&#257;&rsquo; All&#257;h.
     </p>
     <p style="margin:0 0 20px;color:${MUTED};font-size:14px;line-height:1.7;">
       If your matter is urgent, the fastest way to reach us is WhatsApp or a direct call.
     </p>
     <p style="margin:0 0 24px;">
-      <a href="${siteConfig.contact.whatsappHref}" style="display:inline-block;background:#25D366;color:#FFFFFF;font-weight:700;font-size:14px;text-decoration:none;padding:12px 22px;border-radius:10px;margin-right:8px;">WhatsApp us</a>
-      <a href="${siteConfig.contact.phoneHref}" style="display:inline-block;background:${NAVY};color:#FFFFFF;font-weight:700;font-size:14px;text-decoration:none;padding:12px 22px;border-radius:10px;">${escapeHtml(
-        siteConfig.contact.phoneDisplay,
+      <a href="${config.contact.whatsappHref}" style="display:inline-block;background:#25D366;color:#FFFFFF;font-weight:700;font-size:14px;text-decoration:none;padding:12px 22px;border-radius:10px;margin-right:8px;">WhatsApp us</a>
+      <a href="${config.contact.phoneHref}" style="display:inline-block;background:${NAVY};color:#FFFFFF;font-weight:700;font-size:14px;text-decoration:none;padding:12px 22px;border-radius:10px;">${escapeHtml(
+        config.contact.phoneDisplay,
       )}</a>
     </p>
     <div style="border-top:1px solid ${LINE};padding-top:16px;">
@@ -103,8 +110,9 @@ function autoReplyHtml(data: ConsultationInput): string {
       )}</div>
     </div>
     <p style="margin:22px 0 0;color:${MUTED};font-size:12px;font-style:italic;line-height:1.6;">
-      ${escapeHtml(siteConfig.ethicsStatement)}
+      ${escapeHtml(config.ethicsStatement)}
     </p>`,
+    config,
   );
 }
 
@@ -115,6 +123,7 @@ function autoReplyHtml(data: ConsultationInput): string {
  */
 export async function sendConsultationEmails(
   data: ConsultationInput,
+  context: EmailContext,
 ): Promise<{ sent: boolean; error?: string }> {
   const apiKey = process.env.RESEND_API_KEY;
   const to = process.env.CONTACT_TO_EMAIL;
@@ -130,8 +139,8 @@ export async function sendConsultationEmails(
     from,
     to,
     replyTo: data.email,
-    subject: `New consultation: ${subjectLabel(data.subject)} — ${data.name}`,
-    html: notificationHtml(data),
+    subject: `New consultation: ${context.subject} — ${data.name}`,
+    html: notificationHtml(data, context),
   });
 
   if (notification.error) {
@@ -144,8 +153,8 @@ export async function sendConsultationEmails(
     await resend.emails.send({
       from,
       to: data.email,
-      subject: `We have received your request — ${siteConfig.name}`,
-      html: autoReplyHtml(data),
+      subject: `We have received your request — ${context.config.name}`,
+      html: autoReplyHtml(data, context),
     });
   } catch {
     // Intentionally ignored.

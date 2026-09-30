@@ -1,12 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Sora, DM_Sans, Amiri } from 'next/font/google';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
-import { WhatsAppFab } from '@/components/layout/whatsapp-fab';
-import { Analytics } from '@/components/seo/analytics';
-import { JsonLd } from '@/components/seo/json-ld';
-import { organizationSchema, websiteSchema } from '@/lib/schema';
-import { siteConfig } from '@/config/site';
+import { staticSite as siteConfig } from '@/config/site';
 import '@/styles/globals.css';
 
 /* Self-hosted through next/font — no layout shift, no third-party request.
@@ -86,26 +80,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${sora.variable} ${dmSans.variable} ${amiri.variable}`}
       suppressHydrationWarning
     >
-      <body className="flex min-h-dvh flex-col bg-paper antialiased">
-        <a
-          href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-btn focus:bg-gold-500 focus:px-4 focus:py-2 focus:font-semibold focus:text-navy-900"
-        >
-          Skip to content
-        </a>
-
-        <Header />
-
-        <main id="main" className="flex-1">
-          {children}
-        </main>
-
-        <Footer />
-        <WhatsAppFab />
-
-        <JsonLd graph={[organizationSchema(), websiteSchema()]} />
-        <Analytics />
-      </body>
+      <body className="flex min-h-dvh flex-col bg-paper antialiased">{children}</body>
     </html>
   );
 }

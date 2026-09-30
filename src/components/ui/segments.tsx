@@ -1,4 +1,4 @@
-import type { Segment } from '@/data/home';
+import { parseSegments, type Segment } from '@/lib/cms/segments';
 import { cn } from '@/lib/utils';
 
 /**
@@ -15,8 +15,16 @@ const onLightClass = {
   gold: 'text-gold-ink',
 } as const;
 
-export function Segments({ segments, onDark = false }: { segments: Segment[]; onDark?: boolean }) {
+export function Segments({
+  segments: input,
+  onDark = false,
+}: {
+  /** Segments, or heading markup such as "RizSync {orange:Service}". */
+  segments: Segment[] | string;
+  onDark?: boolean;
+}) {
   const palette = onDark ? onDarkClass : onLightClass;
+  const segments = typeof input === 'string' ? parseSegments(input) : input;
   return (
     <>
       {segments.map((segment, index) =>

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Container } from '@/components/ui/container';
-import { services } from '@/data/services';
+import { getServices } from '@/lib/cms/queries';
+import { getIcon } from '@/lib/cms/icons';
 import { pillarTheme } from '@/lib/pillar';
 import { cn } from '@/lib/utils';
 
@@ -12,7 +13,8 @@ import { cn } from '@/lib/utils';
  * Layout: 6 columns from 1280px, 3 × 2 from 768px, and a horizontal
  * scroll-snap row below 768px.
  */
-export function QuickServiceBar() {
+export async function QuickServiceBar() {
+  const services = await getServices();
   return (
     <div className="relative z-10 -mt-[84px]">
       <Container>
@@ -23,7 +25,7 @@ export function QuickServiceBar() {
           <ul className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto md:grid md:grid-cols-3 md:overflow-visible xl:grid-cols-6">
             {services.map((service) => {
               const theme = pillarTheme[service.color];
-              const Icon = service.icon;
+              const Icon = getIcon(service.icon);
               return (
                 <li
                   key={service.slug}

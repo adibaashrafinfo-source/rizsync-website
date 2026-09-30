@@ -10,9 +10,7 @@ import { Field, FieldError, Input, Label, Select, Textarea } from '@/components/
 import { Turnstile } from '@/components/forms/turnstile';
 import { WhatsAppIcon } from '@/components/ui/social-icons';
 import { clientTypes, consultationSchema, type ConsultationInput } from '@/lib/validators';
-import { services, subjectOptions } from '@/data/services';
-import { consultationSection } from '@/data/home';
-import { siteConfig } from '@/config/site';
+import { useSiteData } from '@/components/providers/site-data';
 import { trackLead } from '@/lib/events';
 import { cn } from '@/lib/utils';
 
@@ -20,10 +18,15 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
 type ClientType = (typeof clientTypes)[number];
 
 /**
- * Individuals and families see only the pathways that apply to them — the
- * "clear pathways for different customer types" in DESIGN.md §6.6.5.
+ * Individuals and families do not see the business-only pathways — the
+ * "clear pathways for different customer types" in DESIGN.md §6.6.5. Services
+ * added in the admin panel are offered to everyone.
  */
-const INDIVIDUAL_SUBJECTS = new Set(['family-welfare', 'government-assistance', 'why-rizsync']);
+const BUSINESS_ONLY_SUBJECTS = new Set([
+  'finance-accounting',
+  'business-corporate',
+  'digital-transformation',
+]);
 
 /**
  * Consultation form — HOME_REDESIGN.md §4.13 layout, DESIGN.md §7 behaviour.
@@ -32,11 +35,21 @@ const INDIVIDUAL_SUBJECTS = new Set(['family-welfare', 'government-assistance', 
 export function ConsultationForm({
   /** Pre-selects the Subject, e.g. from a service page. */
   defaultSubject,
+  submitLabel = 'Send Request',
   className,
 }: {
   defaultSubject?: string;
+  submitLabel?: string;
   className?: string;
 }) {
+  const { config: siteConfig, services } = useSiteData();
+  const subjectOptions = useMemo(
+    () => [
+      ...services.map((service) => ({ value: service.slug, label: service.title })),
+      { value: 'other', label: 'Other' },
+    ],
+    [services],
+  );
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<Status>('idle');
   const [serverError, setServerError] = useState<string | null>(null);
@@ -50,7 +63,7 @@ export function ConsultationForm({
   const initialSubject = useMemo(() => {
     const candidate = queryService || defaultSubject;
     return candidate && services.some((service) => service.slug === candidate) ? candidate : '';
-  }, [queryService, defaultSubject]);
+  }, [queryService, defaultSubject, services]);
 
   const {
     register,
@@ -83,7 +96,7 @@ export function ConsultationForm({
   const visibleSubjects =
     clientType === 'Individual & Family'
       ? subjectOptions.filter(
-          (option) => INDIVIDUAL_SUBJECTS.has(option.value) || option.value === 'other',
+          (option) => !BUSINESS_ONLY_SUBJECTS.has(option.value),
         )
       : subjectOptions;
 
@@ -346,7 +359,7 @@ export function ConsultationForm({
             </>
           ) : (
             <>
-              {consultationSection.submit}
+              {submitLabel}
               <ArrowRight aria-hidden className="h-5 w-5" />
             </>
           )}

@@ -1,29 +1,21 @@
 'use client';
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useReducedMotion } from 'framer-motion';
 import {
   ARC_OUTER_RADIUS,
   ServiceWheel,
-  WHEEL_ARCS,
   WHEEL_CENTER,
+  useWheelArcs,
   wheelPoint,
 } from '@/components/home/service-wheel';
 import { HeroServiceCard } from '@/components/home/hero-service-cards';
-import { services, serviceBySlug } from '@/data/services';
+import { useSiteData } from '@/components/providers/site-data';
 import { pillarTheme } from '@/lib/pillar';
 import { cn } from '@/lib/utils';
 
-const DEFAULT_ACTIVE = 'business-corporate';
 const CYCLE_MS = 4000;
-/** Cycle order: clockwise from the default, so the first step is a neighbour. */
-const CYCLE = (() => {
-  const start = WHEEL_ARCS.findIndex((arc) => arc.slug === DEFAULT_ACTIVE);
-  return [...WHEEL_ARCS.slice(start), ...WHEEL_ARCS.slice(0, start)].map((arc) => arc.slug);
-})();
-
-const cardServices = services.filter((service) => service.heroCard);
 
 interface Point {
   x: number;
@@ -48,7 +40,16 @@ interface Overlay {
  */
 export function HeroServiceHub() {
   const reduceMotion = useReducedMotion();
-  const [activeId, setActiveId] = useState<string>(DEFAULT_ACTIVE);
+  const { services } = useSiteData();
+  const arcs = useWheelArcs();
+  const cardServices = useMemo(() => services.filter((service) => service.heroCard), [services]);
+  // Start on the first pillar with a hero card, then cycle clockwise from it.
+  const defaultActive = cardServices[0]?.slug ?? arcs[0]?.slug ?? '';
+  const cycle = useMemo(() => {
+    const start = Math.max(0, arcs.findIndex((arc) => arc.slug === defaultActive));
+    return [...arcs.slice(start), ...arcs.slice(0, start)].map((arc) => arc.slug);
+  }, [arcs, defaultActive]);
+  const [activeId, setActiveId] = useState<string>(defaultActive);
   const [interacted, setInteracted] = useState(false);
   const [overlay, setOverlay] = useState<Overlay | null>(null);
 
@@ -67,10 +68,10 @@ export function HeroServiceHub() {
   useEffect(() => {
     if (reduceMotion || interacted) return;
     const timer = window.setInterval(() => {
-      setActiveId((current) => CYCLE[(CYCLE.indexOf(current) + 1) % CYCLE.length]);
+      setActiveId((current) => cycle[(cycle.indexOf(current) + 1) % cycle.length]);
     }, CYCLE_MS);
     return () => window.clearInterval(timer);
-  }, [reduceMotion, interacted]);
+  }, [reduceMotion, interacted, cycle]);
 
   const measure = useCallback(() => {
     const container = containerRef.current;
@@ -93,7 +94,7 @@ export function HeroServiceHub() {
       return { x: screen.x - box.left, y: screen.y - box.top };
     };
 
-    const arc = WHEEL_ARCS.find((candidate) => candidate.slug === activeId);
+    const arc = arcs.find((candidate) => candidate.slug === activeId);
     if (!arc) return;
 
     const start = toPx(wheelPoint(arc.angle, ARC_OUTER_RADIUS));
@@ -122,7 +123,7 @@ export function HeroServiceHub() {
     }
 
     setOverlay({ width: box.width, height: box.height, connector, tooltip });
-  }, [activeId]);
+  }, [activeId, arcs]);
 
   useLayoutEffect(() => {
     measure();
@@ -142,7 +143,7 @@ export function HeroServiceHub() {
     };
   }, [measure]);
 
-  const activeService = serviceBySlug(activeId);
+  const activeService = services.find((service) => service.slug === activeId);
   const activeTheme = activeService ? pillarTheme[activeService.color] : null;
 
   return (

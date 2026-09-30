@@ -7,20 +7,19 @@ import { Segments } from '@/components/ui/segments';
 import { WhatsAppIcon } from '@/components/ui/social-icons';
 import { MottoChips } from '@/components/home/motto-chips';
 import { HeroServiceHub } from '@/components/home/hero-service-hub';
-import { hero } from '@/data/home';
-import { siteConfig } from '@/config/site';
+import { getHomeContent, getSiteConfig } from '@/lib/cms/queries';
 
 /** Placeholder avatars for the social-proof row — TODO(client) real photos. */
 const avatars = ['bg-teal', 'bg-orange', 'bg-gold'];
 
 /** Decorative background — HOME_REDESIGN.md §4.2 layers 1–3. */
-function HeroBackdrop() {
+function HeroBackdrop({ image }: { image: string }) {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
       {/* 0 — photo: the artwork is dark on its left, so the copy sits there.
           Overlays keep text contrast AA and stop it competing with the wheel. */}
       <Image
-        src={siteConfig.heroImage}
+        src={image}
         alt=""
         fill
         priority
@@ -64,13 +63,14 @@ function HeroBackdrop() {
 }
 
 /** Home hero — HOME_REDESIGN.md §4.2. The page's only H1 lives here. */
-export function HeroSection() {
+export async function HeroSection() {
+  const [{ hero }, siteConfig] = await Promise.all([getHomeContent(), getSiteConfig()]);
   return (
     <section
       aria-labelledby="hero-heading"
       className="relative isolate overflow-hidden bg-navy pt-12 pb-[120px] md:pt-16 xl:min-h-[820px] xl:pt-[72px] xl:pb-[152px]"
     >
-      <HeroBackdrop />
+      <HeroBackdrop image={siteConfig.heroImage} />
 
       <Container className="relative">
         <div className="grid items-center gap-12 lg:gap-14 xl:grid-cols-[580px_1fr] xl:gap-0">
@@ -95,7 +95,7 @@ export function HeroSection() {
             </p>
 
             <div className="mt-8">
-              <MottoChips />
+              <MottoChips motto={hero.motto} />
             </div>
 
             <div className="mt-9 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">

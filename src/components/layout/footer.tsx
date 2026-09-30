@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { Mail, MapPin, Phone } from 'lucide-react';
 import { Container } from '@/components/ui/container';
-import { FacebookIcon, LinkedInIcon, WhatsAppIcon } from '@/components/ui/social-icons';
-import { siteConfig, copyrightRange } from '@/config/site';
+import { WhatsAppIcon } from '@/components/ui/social-icons';
+import { copyrightRange } from '@/config/site';
+import { getServices, getSiteConfig } from '@/lib/cms/queries';
+import { SocialLinks } from '@/components/layout/social-links';
 import { companyNav } from '@/config/nav';
-import { services } from '@/data/services';
 
 const headingClass =
   'font-display text-[15px] font-semibold tracking-[0.02em] text-white';
@@ -13,7 +14,8 @@ const socialClass =
   'inline-flex h-11 w-11 items-center justify-center rounded-btn border border-white/15 text-on-navy-muted transition-colors hover:border-gold hover:text-gold';
 
 /** Global footer — HOME_REDESIGN.md §4.14. */
-export function Footer() {
+export async function Footer() {
+  const [siteConfig, services] = await Promise.all([getSiteConfig(), getServices()]);
   const offices = [siteConfig.offices.corporate, siteConfig.offices.operations];
 
   return (
@@ -25,7 +27,7 @@ export function Footer() {
           {/* 1 — Brand */}
           <div className="sm:col-span-2 lg:col-span-1 lg:pr-10">
             <p className="font-display text-[28px] leading-none font-bold tracking-[-0.02em] text-white">
-              RizSync
+              {siteConfig.shortName}
             </p>
             <p className="mt-4 text-sm font-semibold tracking-wide text-teal-on-navy">
               {siteConfig.tagline}
@@ -33,26 +35,12 @@ export function Footer() {
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-on-navy-faint italic">
               {siteConfig.ethicsStatement}
             </p>
-            <div className="mt-7 flex items-center gap-3">
-              <a
-                href={siteConfig.social.linkedin}
-                aria-label={`${siteConfig.shortName} on LinkedIn`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={socialClass}
-              >
-                <LinkedInIcon className="h-[18px] w-[18px]" />
-              </a>
-              <a
-                href={siteConfig.social.facebook}
-                aria-label={`${siteConfig.shortName} on Facebook`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={socialClass}
-              >
-                <FacebookIcon className="h-[18px] w-[18px]" />
-              </a>
-            </div>
+            <SocialLinks
+              social={siteConfig.social}
+              brand={siteConfig.shortName}
+              className="mt-7"
+              itemClassName={socialClass}
+            />
           </div>
 
           {/* 2 — Services */}
@@ -135,7 +123,7 @@ export function Footer() {
 
         <div className="mt-14 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-8 text-sm text-on-navy-faint sm:flex-row sm:items-center">
           <p>
-            &copy; {copyrightRange()} {siteConfig.name}. All rights reserved.
+            &copy; {copyrightRange(siteConfig.copyrightStartYear)} {siteConfig.name}. All rights reserved.
           </p>
           <div className="flex items-center gap-3">
             <Link href="/privacy-policy" className="transition-colors hover:text-white">

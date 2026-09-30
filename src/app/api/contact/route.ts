@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { consultationSchema } from '@/lib/validators';
+import { consultationSchema, subjectLabel } from '@/lib/validators';
+import { getServices, getSiteConfig } from '@/lib/cms/queries';
 import { clientIp, rateLimit } from '@/lib/rate-limit';
 import { verifyTurnstile } from '@/lib/turnstile';
 import { sendConsultationEmails } from '@/lib/email';
@@ -65,11 +66,14 @@ export async function POST(request: Request) {
     );
   }
 
+  const [config, services] = await Promise.all([getSiteConfig(), getServices()]);
+  const subject = subjectLabel(data.subject, services);
+
   // 6 — Store a backup copy first, so a lead survives an email outage.
-  const stored = await storeLead(data, { ip, source: 'consultation-form' });
+  const stored = await storeLead(data, { ip, source: 'consultation-form', subjectLabel: subject });
 
   // 7 — Notify the team and acknowledge the sender.
-  const email = await sendConsultationEmails(data);
+  const email = await sendConsultationEmails(data, { config, subject });
 
   if (!email.sent) {
     // If neither channel worked, the submission is genuinely lost — say so,

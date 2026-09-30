@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import type { Service } from '@/data/services';
+import type { Service } from '@/lib/cms/types';
+import { getIcon } from '@/lib/cms/icons';
 import { pillarTheme } from '@/lib/pillar';
 import { cn } from '@/lib/utils';
 
@@ -11,7 +12,7 @@ export const cardHover =
 /** Pillar card — HOME_REDESIGN.md §4.6. `featured` is the navy variant. */
 export function PillarCard({ service, featured = false }: { service: Service; featured?: boolean }) {
   const theme = pillarTheme[service.color];
-  const Icon = service.icon;
+  const Icon = getIcon(service.icon);
 
   return (
     <Link

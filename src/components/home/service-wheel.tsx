@@ -1,9 +1,10 @@
 'use client';
 
-import { forwardRef, useState } from 'react';
+import { forwardRef, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
-import { serviceBySlug } from '@/data/services';
+import { useSiteData } from '@/components/providers/site-data';
+import type { Service } from '@/lib/cms/types';
 import { pillarTheme } from '@/lib/pillar';
 
 /* --------------------------------------------------------------------------
@@ -23,46 +24,43 @@ export interface WheelArc {
   angle: number;
   /** Two-line label drawn outside the ring. */
   label: [string, string];
+  service: Service;
 }
 
-export const WHEEL_ARCS: WheelArc[] = [
-  {
-    slug: 'finance-accounting',
-    path: 'M 269.9 70.3 A 190 190 0 0 1 419.3 156.5',
-    angle: -60,
-    label: ['Finance &', 'Accounting'],
-  },
-  {
-    slug: 'business-corporate',
-    path: 'M 429.3 173.7 A 190 190 0 0 1 429.3 346.3',
-    angle: 0,
-    label: ['Business &', 'Corporate'],
-  },
-  {
-    slug: 'government-assistance',
-    path: 'M 419.3 363.5 A 190 190 0 0 1 269.9 449.7',
-    angle: 60,
-    label: ['Government', 'Assistance'],
-  },
-  {
-    slug: 'digital-transformation',
-    path: 'M 250.1 449.7 A 190 190 0 0 1 100.7 363.5',
-    angle: 120,
-    label: ['Digital', 'Transformation'],
-  },
-  {
-    slug: 'family-welfare',
-    path: 'M 90.7 346.3 A 190 190 0 0 1 90.7 173.7',
-    angle: 180,
-    label: ['Family', 'Welfare'],
-  },
-  {
-    slug: 'why-rizsync',
-    path: 'M 100.7 156.5 A 190 190 0 0 1 250.1 70.3',
-    angle: 240,
-    label: ['Benefits &', 'Value'],
-  },
+/** The six fixed arc positions, clockwise from the top right. */
+const ARC_SLOTS: { path: string; angle: number }[] = [
+  { path: 'M 269.9 70.3 A 190 190 0 0 1 419.3 156.5', angle: -60 },
+  { path: 'M 429.3 173.7 A 190 190 0 0 1 429.3 346.3', angle: 0 },
+  { path: 'M 419.3 363.5 A 190 190 0 0 1 269.9 449.7', angle: 60 },
+  { path: 'M 250.1 449.7 A 190 190 0 0 1 100.7 363.5', angle: 120 },
+  { path: 'M 90.7 346.3 A 190 190 0 0 1 90.7 173.7', angle: 180 },
+  { path: 'M 100.7 156.5 A 190 190 0 0 1 250.1 70.3', angle: 240 },
 ];
+
+/** "Finance & Accounting" → ["Finance &", "Accounting"]. */
+function splitLabel(text: string): [string, string] {
+  const amp = text.indexOf(' & ');
+  if (amp > 0) return [text.slice(0, amp + 2), text.slice(amp + 3)];
+  const words = text.split(' ');
+  if (words.length < 2) return [text, ''];
+  const half = Math.ceil(words.length / 2);
+  return [words.slice(0, half).join(' '), words.slice(half).join(' ')];
+}
+
+/** The first six services (in admin display order) fill the six arcs. */
+export function buildWheelArcs(services: Service[]): WheelArc[] {
+  return services.slice(0, ARC_SLOTS.length).map((service, index) => ({
+    ...ARC_SLOTS[index],
+    slug: service.slug,
+    label: splitLabel(service.shortTitle),
+    service,
+  }));
+}
+
+export function useWheelArcs(): WheelArc[] {
+  const { services } = useSiteData();
+  return useMemo(() => buildWheelArcs(services), [services]);
+}
 
 const STROKE = 34;
 const STROKE_ACTIVE = 46;
@@ -98,6 +96,7 @@ export const ServiceWheel = forwardRef<SVGSVGElement, ServiceWheelProps>(functio
   // Tracks keyboard focus so the gold focus outline can be drawn in SVG —
   // CSS `outline` is not reliably painted on SVG children.
   const [focusedId, setFocusedId] = useState<string | null>(null);
+  const arcs = useWheelArcs();
 
   return (
     <svg
@@ -119,9 +118,8 @@ export const ServiceWheel = forwardRef<SVGSVGElement, ServiceWheelProps>(functio
         strokeDasharray="4 7"
       />
 
-      {WHEEL_ARCS.map((arc, index) => {
-        const service = serviceBySlug(arc.slug);
-        if (!service) return null;
+      {arcs.map((arc, index) => {
+        const service = arc.service;
 
         const theme = pillarTheme[service.color];
         const active = activeId === arc.slug;

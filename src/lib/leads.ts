@@ -1,5 +1,5 @@
 import type { ConsultationInput } from '@/lib/validators';
-import { subjectLabel } from '@/lib/validators';
+import { supabaseAnonKey, supabaseUrl } from '@/lib/supabase/config';
 
 /**
  * Optional Supabase backup of every submission (DESIGN.md §2) so a lead is
@@ -31,10 +31,10 @@ import { subjectLabel } from '@/lib/validators';
  */
 export async function storeLead(
   data: ConsultationInput,
-  meta: { ip: string; source: string },
+  meta: { ip: string; source: string; subjectLabel: string },
 ): Promise<{ stored: boolean; error?: string }> {
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+  const url = supabaseUrl;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey;
 
   if (!url || !key) return { stored: false, error: 'supabase-not-configured' };
 
@@ -54,7 +54,7 @@ export async function storeLead(
         phone: data.phone,
         client_type: data.clientType,
         subject: data.subject,
-        subject_label: subjectLabel(data.subject),
+        subject_label: meta.subjectLabel,
         message: data.message,
         preferred_contact: data.preferredContact || null,
         source: meta.source,

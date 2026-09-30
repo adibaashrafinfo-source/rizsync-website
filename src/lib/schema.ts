@@ -1,5 +1,5 @@
-import { siteConfig, absoluteUrl } from '@/config/site';
-import type { Faq } from '@/data/services';
+import { siteConfig as defaultConfig, absoluteUrl } from '@/config/site';
+import type { Faq, SiteConfig } from '@/lib/cms/types';
 import type { Crumb } from '@/components/ui/breadcrumbs';
 
 /** JSON-LD graph IDs so nodes can reference each other rather than repeat. */
@@ -26,8 +26,8 @@ function postalAddress(office: {
  * ProfessionalService is a subtype of LocalBusiness, so one node carries both
  * the corporate identity and the local-business signals.
  */
-export function organizationSchema() {
-  const sameAs = [siteConfig.social.facebook, siteConfig.social.linkedin].filter(
+export function organizationSchema(siteConfig: SiteConfig = defaultConfig) {
+  const sameAs = Object.values(siteConfig.social).filter(
     (url) => url && url !== '#',
   );
 
@@ -76,7 +76,7 @@ export function organizationSchema() {
 }
 
 /** WebSite node with the /insights search action (§8). */
-export function websiteSchema() {
+export function websiteSchema(siteConfig: SiteConfig = defaultConfig) {
   return {
     '@type': 'WebSite',
     '@id': SITE_ID,

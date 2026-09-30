@@ -7,14 +7,15 @@ import { Eyebrow } from '@/components/ui/eyebrow';
 import { Reveal } from '@/components/ui/reveal';
 import { Segments } from '@/components/ui/segments';
 import { SyncMark } from '@/components/layout/logo';
-import { about } from '@/data/home';
+import { getHomeContent } from '@/lib/cms/queries';
 
 /**
  * "Who we are" split — HOME_REDESIGN.md §4.5. The navy panel is ready for a
  * team/office photo (`about.photo`); until one is supplied the gold star
  * lattice and the brand mark stand in, with no invented imagery.
  */
-export function AboutSplit() {
+export async function AboutSplit() {
+  const { about } = await getHomeContent();
   return (
     <section aria-labelledby="about-heading" className="bg-white pt-20 pb-14 md:pt-24 md:pb-[72px] xl:pt-32 xl:pb-28">
       <Container>

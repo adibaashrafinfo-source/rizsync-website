@@ -9,9 +9,9 @@ import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/layout/logo';
 import { MobileNav } from '@/components/layout/mobile-nav';
-import { siteConfig } from '@/config/site';
 import { CTA_HOME_HREF, CTA_HREF, CTA_LABEL, mainNav } from '@/config/nav';
-import { services } from '@/data/services';
+import { useSiteData } from '@/components/providers/site-data';
+import { getIcon } from '@/lib/cms/icons';
 import { pillarTheme } from '@/lib/pillar';
 import { cn } from '@/lib/utils';
 
@@ -35,6 +35,7 @@ const linkBase =
 export function Header() {
   const pathname = usePathname();
   const scrolled = useScrolled();
+  const { config: siteConfig } = useSiteData();
   const isHome = pathname === '/';
 
   const isActive = (href: string) =>
@@ -139,12 +140,13 @@ export function Header() {
 
 /** 2 × 3 pillar grid with a "View all" footer row (DESIGN.md §5.1). */
 function MegaMenu() {
+  const { services } = useSiteData();
   return (
     <div className="w-[min(92vw,56rem)] p-3">
       <ul className="grid gap-1 md:grid-cols-2">
         {services.map((service) => {
           const theme = pillarTheme[service.color];
-          const Icon = service.icon;
+          const Icon = getIcon(service.icon);
           return (
             <li key={service.slug}>
               <NavigationMenu.Link asChild>

@@ -5,14 +5,12 @@ import { SectionHeading } from '@/components/ui/section-heading';
 import { Button } from '@/components/ui/button';
 import { Reveal } from '@/components/ui/reveal';
 import { PillarCard } from '@/components/home/pillar-card';
-import { services } from '@/data/services';
-import { pillarsSection } from '@/data/home';
+import { getHomeContent, getServices } from '@/lib/cms/queries';
 
-/** Business is the fixed featured card on the home page (§4.6). */
-const FEATURED = 'business-corporate';
 
 /** Six-pillar grid — HOME_REDESIGN.md §4.6: 3 cols, 2 below 1024, 1 below 640. */
-export function PillarsGrid() {
+export async function PillarsGrid() {
+  const [{ pillarsSection }, services] = await Promise.all([getHomeContent(), getServices()]);
   return (
     <Section id="pillars" className="bg-mist" labelledBy="pillars-heading">
       <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
@@ -35,7 +33,7 @@ export function PillarsGrid() {
         {services.map((service, index) => (
           <li key={service.slug}>
             <Reveal delay={index * 0.05} className="h-full">
-              <PillarCard service={service} featured={service.slug === FEATURED} />
+              <PillarCard service={service} featured={index === 1} />
             </Reveal>
           </li>
         ))}

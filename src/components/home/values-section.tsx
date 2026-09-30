@@ -3,11 +3,14 @@ import { SectionHeading } from '@/components/ui/section-heading';
 import { ArrowLink } from '@/components/ui/arrow-link';
 import { Reveal } from '@/components/ui/reveal';
 import { ValueCard } from '@/components/home/value-card';
-import { ethicalValues } from '@/data/values';
-import { valuesSection } from '@/data/home';
+import { getAboutContent, getHomeContent } from '@/lib/cms/queries';
 
 /** The Quranic Business Model — HOME_REDESIGN.md §4.8. */
-export function ValuesSection() {
+export async function ValuesSection() {
+  const [{ valuesSection }, { values: ethicalValues }] = await Promise.all([
+    getHomeContent(),
+    getAboutContent(),
+  ]);
   return (
     <Section className="bg-white" labelledBy="values-heading">
       <SectionHeading

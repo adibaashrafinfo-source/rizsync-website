@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { WhatsAppIcon } from '@/components/ui/social-icons';
-import { siteConfig } from '@/config/site';
+import { useSiteData } from '@/components/providers/site-data';
 import { cn } from '@/lib/utils';
 
 /**
@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
  */
 export function WhatsAppFab() {
   const [hidden, setHidden] = useState(false);
+  const { config: siteConfig } = useSiteData();
 
   useEffect(() => {
     const isFormField = (node: EventTarget | null) =>

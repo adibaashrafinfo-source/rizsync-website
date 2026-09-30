@@ -4,10 +4,13 @@ import matter from 'gray-matter';
 import readingTime from 'reading-time';
 import { slugify } from '@/lib/utils';
 import { insightCategories } from '@/lib/categories';
+import { getPostsFromCms, type Post } from '@/lib/cms/queries';
 
 export { insightCategories, categoryColor, type InsightCategory } from '@/lib/categories';
 
 const CONTENT_DIR = path.join(process.cwd(), 'content', 'insights');
+
+export type { Post } from '@/lib/cms/queries';
 
 export interface PostFrontmatter {
   title: string;
@@ -19,12 +22,6 @@ export interface PostFrontmatter {
   date: string;
   cover?: string;
   featured?: boolean;
-}
-
-export interface Post extends PostFrontmatter {
-  content: string;
-  readingMinutes: number;
-  categorySlug: string;
 }
 
 /** Heading extracted for the article table of contents (§6.5). */
@@ -61,8 +58,8 @@ function readPostFile(fileName: string): Post | null {
   };
 }
 
-/** All posts, newest first. */
-export function getAllPosts(): Post[] {
+/** The MDX files in `content/insights` — seed data and offline fallback. */
+export function readMdxPosts(): Post[] {
   if (!fs.existsSync(CONTENT_DIR)) return [];
 
   return fs
@@ -73,18 +70,24 @@ export function getAllPosts(): Post[] {
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
-export function getPostBySlug(slug: string): Post | undefined {
-  return getAllPosts().find((post) => post.slug === slug);
+/** All published posts, newest first — from the CMS, or the MDX files. */
+export function getAllPosts(): Promise<Post[]> {
+  return getPostsFromCms(readMdxPosts);
 }
 
-export function getPostsByCategorySlug(categorySlug: string): Post[] {
-  return getAllPosts().filter((post) => post.categorySlug === categorySlug);
+export async function getPostBySlug(slug: string): Promise<Post | undefined> {
+  return (await getAllPosts()).find((post) => post.slug === slug);
+}
+
+export async function getPostsByCategorySlug(categorySlug: string): Promise<Post[]> {
+  return (await getAllPosts()).filter((post) => post.categorySlug === categorySlug);
 }
 
 /** Categories that actually have posts, with counts, for the listing pills. */
-export function getCategoriesInUse() {
-  const posts = getAllPosts();
-  return insightCategories
+export async function getCategoriesInUse() {
+  const posts = await getAllPosts();
+  const names = Array.from(new Set([...insightCategories, ...posts.map((post) => post.category)]));
+  return names
     .map((category) => ({
       name: category,
       slug: slugify(category),
@@ -94,14 +97,14 @@ export function getCategoriesInUse() {
 }
 
 /** The featured post, falling back to the newest one. */
-export function getFeaturedPost(): Post | undefined {
-  const posts = getAllPosts();
+export async function getFeaturedPost(): Promise<Post | undefined> {
+  const posts = await getAllPosts();
   return posts.find((post) => post.featured) ?? posts[0];
 }
 
 /** Up to `limit` posts sharing a category, excluding the current one. */
-export function getRelatedPosts(post: Post, limit = 3): Post[] {
-  const others = getAllPosts().filter((candidate) => candidate.slug !== post.slug);
+export async function getRelatedPosts(post: Post, limit = 3): Promise<Post[]> {
+  const others = (await getAllPosts()).filter((candidate) => candidate.slug !== post.slug);
   const sameCategory = others.filter(
     (candidate) => candidate.categorySlug === post.categorySlug,
   );

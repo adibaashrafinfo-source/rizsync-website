@@ -2,16 +2,21 @@ import Link from 'next/link';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
 import { Eyebrow } from '@/components/ui/eyebrow';
-import { services } from '@/data/services';
-import { siteConfig } from '@/config/site';
+import { SiteChrome } from '@/components/layout/site-chrome';
+import { SiteDataProvider } from '@/components/providers/site-data';
+import { getServices, getSiteConfig } from '@/lib/cms/queries';
 
 export const metadata = {
   title: 'Page not found',
   robots: { index: false, follow: true },
 };
 
-export default function NotFound() {
+export default async function NotFound() {
+  const [siteConfig, services] = await Promise.all([getSiteConfig(), getServices()]);
+
   return (
+    <SiteDataProvider value={{ config: siteConfig, services }}>
+      <SiteChrome config={siteConfig}>
     <section className="relative overflow-hidden bg-navy-900 py-24 md:py-32">
       <div aria-hidden className="bg-circuit pointer-events-none absolute inset-0" />
 
@@ -59,5 +64,7 @@ export default function NotFound() {
         </div>
       </Container>
     </section>
+      </SiteChrome>
+    </SiteDataProvider>
   );
 }

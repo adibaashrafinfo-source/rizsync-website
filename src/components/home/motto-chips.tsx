@@ -1,17 +1,17 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { hero } from '@/data/home';
+import type { HomeContent } from '@/lib/cms/types';
 import { pillarTheme } from '@/lib/pillar';
 import { cn } from '@/lib/utils';
 
 /** Connect · Simplify · Protect · Transform · Grow — staggered 80ms (§4.2, §5). */
-export function MottoChips() {
+export function MottoChips({ motto }: { motto: HomeContent['hero']['motto'] }) {
   const reduceMotion = useReducedMotion();
 
   return (
     <ul className="flex flex-wrap gap-2" aria-label="Our motto">
-      {hero.motto.map(({ word, color }, index) => (
+      {motto.map(({ word, color }, index) => (
         <motion.li
           key={word}
           initial={reduceMotion ? false : { opacity: 0, y: 10 }}

@@ -2,13 +2,14 @@ import { Container } from '@/components/ui/container';
 import { Eyebrow } from '@/components/ui/eyebrow';
 import { Reveal } from '@/components/ui/reveal';
 import { Segments } from '@/components/ui/segments';
-import { benefits } from '@/data/benefits';
-import { benefitsSection } from '@/data/home';
+import { getHomeContent } from '@/lib/cms/queries';
+import { getIcon } from '@/lib/cms/icons';
 import { pillarTheme } from '@/lib/pillar';
 import { cn } from '@/lib/utils';
 
 /** Navy benefits band — HOME_REDESIGN.md §4.7 (4fr / 8fr, 2 × 2 glass cards). */
-export function BenefitsBand() {
+export async function BenefitsBand() {
+  const { benefitsSection, benefits } = await getHomeContent();
   return (
     <section
       aria-labelledby="benefits-heading"
@@ -32,7 +33,7 @@ export function BenefitsBand() {
 
           <ul className="grid gap-5 sm:grid-cols-2">
             {benefits.map((benefit, index) => {
-              const Icon = benefit.icon;
+              const Icon = getIcon(benefit.icon);
               return (
                 <li key={benefit.title}>
                   <Reveal delay={index * 0.06} className="h-full">

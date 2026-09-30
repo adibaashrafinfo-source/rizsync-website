@@ -3,7 +3,8 @@
 import { forwardRef } from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import type { Service } from '@/data/services';
+import type { Service } from '@/lib/cms/types';
+import { getIcon } from '@/lib/cms/icons';
 import { pillarTheme } from '@/lib/pillar';
 import { cn } from '@/lib/utils';
 
@@ -25,7 +26,7 @@ export const HeroServiceCard = forwardRef<
   if (!card) return null;
 
   const theme = pillarTheme[service.color];
-  const Icon = service.icon;
+  const Icon = getIcon(service.icon);
 
   return (
     <Link

@@ -1,22 +1,12 @@
-import type { PillarColor } from '@/lib/pillar';
+import type { EthicalValue } from '@/lib/cms/types';
+
+export type { EthicalValue } from '@/lib/cms/types';
 
 /**
  * The Quranic Business Model — HOME_REDESIGN.md §4.8 and DESIGN.md §6.2.4.
  * `short` is used on the home page, `long` on the About page.
  */
-export interface EthicalValue {
-  arabic: string;
-  transliteration: string;
-  english: string;
-  short: string;
-  long: string;
-  /** Colour of the Arabic word on the home card (its ink shade on white). */
-  accent: PillarColor;
-  /** Amanah is the featured navy card with gold Arabic (§4.8). */
-  featured?: boolean;
-}
-
-export const ethicalValues: EthicalValue[] = [
+export const defaultValues: EthicalValue[] = [
   {
     arabic: 'عدل',
     transliteration: 'Adl',

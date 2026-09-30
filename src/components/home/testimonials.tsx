@@ -5,8 +5,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { ArrowLeft, ArrowRight, Star } from 'lucide-react';
 import { Container } from '@/components/ui/container';
 import { Eyebrow } from '@/components/ui/eyebrow';
-import { testimonials } from '@/data/testimonials';
-import { testimonialsSection } from '@/data/home';
+import type { HomeContent, Testimonial } from '@/lib/cms/types';
 import { cn } from '@/lib/utils';
 
 /** Middle card is the featured navy card (§4.10). */
@@ -20,7 +19,13 @@ const navButton =
  * on desktop, ~1.1 on mobile with snap.
  * TODO(client): placeholder quotes until real, attributable testimonials arrive.
  */
-export function Testimonials() {
+export function TestimonialsCarousel({
+  section: testimonialsSection,
+  testimonials,
+}: {
+  section: HomeContent['testimonialsSection'];
+  testimonials: Testimonial[];
+}) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ align: 'start', containScroll: 'trimSnaps' });
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);

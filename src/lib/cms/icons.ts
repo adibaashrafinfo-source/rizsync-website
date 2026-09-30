@@ -1,0 +1,68 @@
+import {
+  Award,
+  BadgeCheck,
+  BarChart3,
+  Briefcase,
+  Building2,
+  Calculator,
+  Clock,
+  Cpu,
+  FileCheck,
+  FileText,
+  Globe,
+  GraduationCap,
+  Handshake,
+  HeartHandshake,
+  Home,
+  Landmark,
+  Lightbulb,
+  PiggyBank,
+  Receipt,
+  Rocket,
+  Scale,
+  Server,
+  ShieldCheck,
+  Sparkles,
+  Users,
+  Wallet,
+  type LucideIcon,
+} from 'lucide-react';
+
+/**
+ * Icons an admin can pick for a service or benefit. Stored by name in the
+ * database so rows stay plain data; resolved to components here.
+ */
+export const iconRegistry: Record<string, LucideIcon> = {
+  Award,
+  BadgeCheck,
+  BarChart3,
+  Briefcase,
+  Building2,
+  Calculator,
+  Clock,
+  Cpu,
+  FileCheck,
+  FileText,
+  Globe,
+  GraduationCap,
+  Handshake,
+  HeartHandshake,
+  Home,
+  Landmark,
+  Lightbulb,
+  PiggyBank,
+  Receipt,
+  Rocket,
+  Scale,
+  Server,
+  ShieldCheck,
+  Sparkles,
+  Users,
+  Wallet,
+};
+
+export const iconNames = Object.keys(iconRegistry);
+
+export function getIcon(name: string | null | undefined): LucideIcon {
+  return (name && iconRegistry[name]) || Briefcase;
+}

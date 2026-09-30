@@ -1,4 +1,4 @@
-import type { EthicalValue } from '@/data/values';
+import type { EthicalValue } from '@/lib/cms/types';
 import { cn } from '@/lib/utils';
 
 const arabicInk = {

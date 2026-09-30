@@ -4,11 +4,12 @@ import { ArrowLink } from '@/components/ui/arrow-link';
 import { BlogCard } from '@/components/ui/blog-card';
 import { Reveal } from '@/components/ui/reveal';
 import { getAllPosts } from '@/lib/mdx';
-import { insightsSection } from '@/data/home';
+import { getHomeContent } from '@/lib/cms/queries';
 
 /** Latest three MDX posts — HOME_REDESIGN.md §4.12. */
-export function InsightsPreview() {
-  const posts = getAllPosts().slice(0, 3);
+export async function InsightsPreview() {
+  const [{ insightsSection }, allPosts] = await Promise.all([getHomeContent(), getAllPosts()]);
+  const posts = allPosts.slice(0, 3);
   if (posts.length === 0) return null;
 
   return (

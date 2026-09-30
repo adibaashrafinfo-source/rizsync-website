@@ -1,7 +1,7 @@
-import type { Faq } from '@/data/services';
+import type { Faq } from '@/lib/cms/types';
 
 /** General FAQs shown on the Services hub — DESIGN.md §6.3.4. */
-export const generalFaqs: Faq[] = [
+export const defaultFaqs: Faq[] = [
   {
     question: 'How does an engagement with RizSync start?',
     answer:
