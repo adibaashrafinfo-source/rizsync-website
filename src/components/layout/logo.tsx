@@ -1,11 +1,13 @@
+import Image from 'next/image';
 import Link from 'next/link';
-import { staticSite as siteConfig } from '@/config/site';
+import { staticSite } from '@/config/site';
 import { cn } from '@/lib/utils';
+import type { SiteConfig } from '@/lib/cms/types';
 
 /**
- * The sync mark: two opposing arcs, teal and orange, each ending in an
- * arrowhead. Placeholder until the client's vector logo arrives (§0.6) —
- * replace this component's SVG and every placement updates.
+ * Fallback sync mark: two opposing arcs, teal and orange. Shown only until a
+ * logo is uploaded in the admin panel (Site settings → Logo), so the header
+ * is never blank.
  */
 export function SyncMark({ className }: { className?: string }) {
   return (
@@ -30,27 +32,83 @@ export function SyncMark({ className }: { className?: string }) {
   );
 }
 
-/** Header/sheet lock-up: 44px white tile + wordmark (HOME_REDESIGN.md §4.1). */
-export function Logo({ className, compact = false }: { className?: string; compact?: boolean }) {
+/**
+ * Brand lock-up for the navy header and footer. Renders the uploaded logo
+ * when there is one; `showWordmark` keeps the text beside a mark-only logo.
+ */
+export function Logo({
+  className,
+  compact = false,
+  config,
+  variant = 'header',
+}: {
+  className?: string;
+  /** Drops the "Service Solution" line (mobile sheet header). */
+  compact?: boolean;
+  /** Live settings. Without them the built-in mark is used. */
+  config?: SiteConfig;
+  variant?: 'header' | 'footer';
+}) {
+  const branding = config?.branding;
+  const name = config?.name ?? staticSite.name;
+  const shortName = config?.shortName ?? staticSite.shortName;
+
+  const src =
+    variant === 'footer'
+      ? branding?.footerLogo || branding?.headerLogo || ''
+      : branding?.headerLogo || '';
+  const configured =
+    variant === 'footer' ? branding?.footerLogoHeight : branding?.headerLogoHeight;
+  const height = Math.min(120, Math.max(24, Number(configured) || 46));
+  const withWordmark = !src || branding?.showWordmark === true;
+
+  const content = (
+    <>
+      {src ? (
+        <Image
+          src={src}
+          alt={name}
+          height={height}
+          width={height * 4}
+          priority={variant === 'header'}
+          sizes={`${height * 4}px`}
+          style={{ height, width: 'auto' }}
+          className="object-contain"
+        />
+      ) : (
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-btn bg-white">
+          <SyncMark className="h-7 w-7" />
+        </span>
+      )}
+
+      {withWordmark ? (
+        <span className="flex flex-col leading-none">
+          <span className="font-display text-[22px] leading-none font-bold tracking-[-0.02em] text-white">
+            {shortName}
+          </span>
+          {compact ? null : (
+            <span className="mt-1.5 text-[10.5px] leading-none font-semibold tracking-[0.22em] text-on-navy-faint uppercase">
+              Service Solution
+            </span>
+          )}
+        </span>
+      ) : null}
+    </>
+  );
+
+  // The footer already sits inside its own layout, and nesting a link inside
+  // the footer's brand column would duplicate the header's home link.
+  if (variant === 'footer') {
+    return <span className={cn('flex items-center gap-3', className)}>{content}</span>;
+  }
+
   return (
     <Link
       href="/"
-      aria-label={`${siteConfig.name} — home`}
+      aria-label={`${name} — home`}
       className={cn('flex items-center gap-3 rounded-btn', className)}
     >
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-btn bg-white">
-        <SyncMark className="h-7 w-7" />
-      </span>
-      <span className="flex flex-col leading-none">
-        <span className="font-display text-[22px] leading-none font-bold tracking-[-0.02em] text-white">
-          RizSync
-        </span>
-        {compact ? null : (
-          <span className="mt-1.5 text-[10.5px] leading-none font-semibold tracking-[0.22em] text-on-navy-faint uppercase">
-            Service Solution
-          </span>
-        )}
-      </span>
+      {content}
     </Link>
   );
 }

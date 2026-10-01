@@ -51,7 +51,7 @@ export function MobileNav({ isHome }: { isHome: boolean }) {
           aria-describedby={undefined}
         >
           <div className="flex items-center justify-between border-b border-white/[0.08] px-5 py-4">
-            <Logo compact />
+            <Logo compact config={siteConfig} />
             <Dialog.Title className="sr-only">Menu</Dialog.Title>
             <Dialog.Close asChild>
               <button

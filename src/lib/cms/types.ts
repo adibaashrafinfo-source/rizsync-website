@@ -19,6 +19,24 @@ export interface Office {
 }
 
 export interface SiteSettings {
+  /**
+   * Logos uploaded in the admin panel. Empty means the built-in SyncMark
+   * lock-up is used instead, so the header never renders blank.
+   */
+  branding: {
+    /** Shown in the header, which sits on navy — needs light artwork. */
+    headerLogo: string;
+    /** Shown in the footer (also navy). Falls back to the header logo. */
+    footerLogo: string;
+    /** Full-colour logo for light backgrounds and sharing cards. */
+    lightBackgroundLogo: string;
+    /** Rendered height of the header logo, in pixels. */
+    headerLogoHeight: number;
+    /** Rendered height of the footer logo, in pixels. */
+    footerLogoHeight: number;
+    /** Hide the "RizSync / Service Solution" text when the logo includes it. */
+    showWordmark: boolean;
+  };
   name: string;
   shortName: string;
   legalName: string;

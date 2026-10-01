@@ -24,6 +24,14 @@ export const staticSite = {
 } as const;
 
 export const defaultSettings: SiteSettings = {
+  branding: {
+    headerLogo: '/images/logo-light.webp',
+    footerLogo: '/images/logo-light.webp',
+    lightBackgroundLogo: '/images/logo.webp',
+    headerLogoHeight: 46,
+    footerLogoHeight: 54,
+    showWordmark: false,
+  },
   name: staticSite.name,
   shortName: staticSite.shortName,
   legalName: staticSite.name,
@@ -87,7 +95,8 @@ export function resolveSiteConfig(settings: SiteSettings): SiteConfig {
   return {
     ...settings,
     url: staticSite.url,
-    logo: staticSite.logo,
+    // Search engines want the full-colour mark on a light background.
+    logo: settings.branding?.lightBackgroundLogo || staticSite.logo,
     ogImage: staticSite.ogImage,
     analytics: staticSite.analytics,
     mottoWords: settings.tagline

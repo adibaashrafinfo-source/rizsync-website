@@ -4,6 +4,7 @@ import { Container } from '@/components/ui/container';
 import { WhatsAppIcon } from '@/components/ui/social-icons';
 import { copyrightRange } from '@/config/site';
 import { getServices, getSiteConfig } from '@/lib/cms/queries';
+import { Logo } from '@/components/layout/logo';
 import { SocialLinks } from '@/components/layout/social-links';
 import { companyNav } from '@/config/nav';
 
@@ -26,10 +27,8 @@ export async function Footer() {
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-[4fr_2fr_2fr_3fr] lg:gap-10">
           {/* 1 — Brand */}
           <div className="sm:col-span-2 lg:col-span-1 lg:pr-10">
-            <p className="font-display text-[28px] leading-none font-bold tracking-[-0.02em] text-white">
-              {siteConfig.shortName}
-            </p>
-            <p className="mt-4 text-sm font-semibold tracking-wide text-teal-on-navy">
+            <Logo variant="footer" config={siteConfig} />
+            <p className="mt-5 text-sm font-semibold tracking-wide text-teal-on-navy">
               {siteConfig.tagline}
             </p>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-on-navy-faint italic">

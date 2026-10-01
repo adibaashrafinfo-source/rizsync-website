@@ -463,6 +463,61 @@ export const docs: Record<DocKey, DocConfig> = {
     publicPath: '/contact',
     sections: [
       {
+        title: 'Logo',
+        description:
+          'The header and footer sit on a dark navy background, so those logos need light artwork — upload a white or light version there. Leave a field empty to fall back to the built-in mark.',
+        fields: [
+          {
+            name: 'branding',
+            label: 'Logos',
+            type: 'group',
+            fields: [
+              {
+                name: 'headerLogo',
+                label: 'Header logo (for dark background)',
+                type: 'image',
+                folder: 'brand',
+                help: 'PNG or WebP with a transparent background. About 900 px wide.',
+              },
+              {
+                name: 'footerLogo',
+                label: 'Footer logo (for dark background)',
+                type: 'image',
+                folder: 'brand',
+                help: 'Leave empty to reuse the header logo.',
+              },
+              {
+                name: 'lightBackgroundLogo',
+                label: 'Logo for light backgrounds',
+                type: 'image',
+                folder: 'brand',
+                help: 'Your full-colour logo, used where the background is white.',
+              },
+              {
+                name: 'headerLogoHeight',
+                label: 'Header logo height (px)',
+                type: 'number',
+                half: true,
+                help: 'Between 24 and 120. 46 suits a wide logo.',
+              },
+              {
+                name: 'footerLogoHeight',
+                label: 'Footer logo height (px)',
+                type: 'number',
+                half: true,
+                help: 'Between 24 and 120.',
+              },
+              {
+                name: 'showWordmark',
+                label: 'Also show the "RizSync" text beside the logo',
+                type: 'toggle',
+                help: 'Turn on only if your logo is just the symbol, with no company name in it.',
+              },
+            ],
+          },
+        ],
+      },
+      {
         title: 'Brand',
         fields: [
           { name: 'name', label: 'Company name', type: 'text', required: true, half: true },

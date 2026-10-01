@@ -54,7 +54,7 @@ export function Header() {
           scrolled ? 'h-[72px]' : 'h-[88px]',
         )}
       >
-        <Logo className="shrink-0" />
+        <Logo className="shrink-0" config={siteConfig} />
 
         <div className="hidden items-center gap-2 xl:flex">
           <NavigationMenu.Root delayDuration={80} className="relative" aria-label="Main">
