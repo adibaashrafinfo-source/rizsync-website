@@ -53,7 +53,7 @@ export const defaultHome: HomeContent = {
     confidential: '100% Confidential',
     /** Photo for the navy panel; set to null to fall back to the star pattern. */
     photo: '/images/team/about-office.webp',
-    photoAlt: 'A RizSync advisor at a desk overlooking the city skyline',
+    photoAlt: 'The RizSync team reviewing client accounts in the Dhaka office',
   },
 
   pillarsSection: {

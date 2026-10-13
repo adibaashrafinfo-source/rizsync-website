@@ -124,8 +124,10 @@ export default async function OurTeamPage() {
           />
           <ul
             className={cn(
-              'mt-12 grid gap-6',
-              members.length === 1 ? 'mx-auto max-w-2xl' : 'md:grid-cols-2',
+              'mx-auto mt-12 grid gap-6 sm:gap-7',
+              members.length === 1 && 'max-w-sm',
+              members.length === 2 && 'max-w-3xl sm:grid-cols-2',
+              members.length >= 3 && 'sm:grid-cols-2 lg:grid-cols-3',
             )}
           >
             {members.map((member, memberIndex) => (
@@ -151,65 +153,83 @@ function ProfileCard({ member, accent }: { member: TeamMember; accent: TeamGroup
   // A profile awaiting its real name is stored with the designation as the
   // name; don't print the same line twice.
   const showTitle = member.title && member.title !== member.name;
+  // Portraits are letterboxed rather than cropped, so no face is cut off.
+  const tags = member.expertise?.slice(0, 4) ?? [];
+  const moreTags = Math.max(0, (member.expertise?.length ?? 0) - tags.length);
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-[22px] border border-line bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-float sm:flex-row">
-      {/* Photo */}
-      <div className="relative w-full shrink-0 overflow-hidden bg-mist sm:w-[38%]">
-        <span aria-hidden className={cn('absolute inset-y-0 left-0 z-10 w-1', theme.solid)} />
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-[24px] border border-line bg-white shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:border-navy/15 hover:shadow-float">
+      {/* Portrait — shown whole on a tinted panel. */}
+      <div className="relative aspect-[4/5] w-full overflow-hidden bg-gradient-to-b from-mist to-white">
+        <span aria-hidden className={cn('absolute inset-x-0 top-0 z-10 h-1', theme.solid)} />
         {member.photo ? (
           <Image
             src={member.photo}
             alt={`${member.name}, ${member.title}`}
-            width={800}
-            height={1000}
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 40vw, 260px"
-            className="h-64 w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03] sm:h-full"
+            fill
+            sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 340px"
+            className="object-contain object-bottom transition-transform duration-500 group-hover:scale-[1.02]"
           />
         ) : (
-          <div className="flex h-64 w-full items-center justify-center bg-navy-900 sm:h-full">
+          <div className="absolute inset-0 flex items-center justify-center bg-navy-900">
             <div aria-hidden className="bg-geometric absolute inset-0" />
             <span className="relative font-display text-4xl font-bold text-gold-500">
               {initials(member.name)}
             </span>
           </div>
         )}
+        {/* Keeps the name legible where a portrait runs light at the foot. */}
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white to-transparent"
+        />
       </div>
 
       {/* Copy */}
-      <div className="flex flex-1 flex-col p-6 md:p-7">
+      <div className="flex flex-1 flex-col p-6">
         <h3 className="font-display text-[19px] leading-snug font-bold text-navy">{member.name}</h3>
         {showTitle ? (
-          <p className={cn('mt-1 text-[14px] font-semibold', theme.ink)}>{member.title}</p>
+          <p className={cn('mt-1.5 text-[14px] leading-snug font-semibold', theme.ink)}>
+            {member.title}
+          </p>
         ) : null}
         {member.credentials ? (
-          <p className="mt-2 flex items-start gap-2 text-[13px] leading-snug text-muted">
+          <p className="mt-2.5 flex items-start gap-2 text-[12.5px] leading-snug text-muted">
             <BadgeCheck aria-hidden className={cn('mt-px h-4 w-4 shrink-0', theme.ink)} />
             {member.credentials}
           </p>
         ) : null}
 
         {member.bio ? (
-          <p className="mt-4 flex-1 text-[14.5px] leading-relaxed text-ink-600">{member.bio}</p>
-        ) : (
-          <div className="flex-1" />
-        )}
+          <p className="mt-4 line-clamp-3 text-[14px] leading-relaxed text-ink-600">{member.bio}</p>
+        ) : null}
 
-        {member.expertise?.length ? (
-          <ul className="mt-4 flex flex-wrap gap-1.5">
-            {member.expertise.map((item) => (
+        <div className="flex-1" />
+
+        {tags.length ? (
+          <ul className="mt-5 flex flex-wrap gap-1.5 border-t border-line pt-4">
+            {tags.map((item) => (
               <li
                 key={item}
-                className={cn('rounded-full px-2.5 py-1 text-[12px] font-semibold', theme.tile, theme.tileIcon)}
+                className={cn(
+                  'rounded-full px-2.5 py-1 text-[11.5px] leading-tight font-semibold',
+                  theme.tile,
+                  theme.tileIcon,
+                )}
               >
                 {item}
               </li>
             ))}
+            {moreTags ? (
+              <li className="rounded-full bg-mist px-2.5 py-1 text-[11.5px] leading-tight font-semibold text-muted">
+                +{moreTags} more
+              </li>
+            ) : null}
           </ul>
         ) : null}
 
         {member.linkedin || member.email ? (
-          <div className="mt-5 flex items-center gap-2 border-t border-line pt-4">
+          <div className="mt-4 flex items-center gap-2">
             {member.linkedin ? (
               <a
                 href={member.linkedin}

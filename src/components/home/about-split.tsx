@@ -22,8 +22,8 @@ export async function AboutSplit() {
         <div className="grid items-center gap-14 lg:grid-cols-2 xl:gap-[88px]">
           {/* Visual */}
           <Reveal>
-            <div className="relative mx-auto h-[360px] w-full max-w-[520px] sm:h-[420px] xl:h-[520px]">
-              <div className="relative h-[92%] w-[90%] overflow-hidden rounded-panel bg-navy">
+            <div className="relative mx-auto aspect-[4/3] w-full max-w-[560px]">
+              <div className="relative h-[88%] w-[92%] overflow-hidden rounded-panel bg-navy">
                 {about.photo ? (
                   <>
                     <Image
@@ -31,7 +31,7 @@ export async function AboutSplit() {
                       alt={about.photoAlt}
                       fill
                       sizes="(max-width: 1024px) 90vw, 470px"
-                      className="object-cover object-top"
+                      className="object-cover object-center"
                     />
                     {/* Navy fade at the foot so the floating cards sit on calm ground. */}
                     <div
