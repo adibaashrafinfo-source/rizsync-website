@@ -50,7 +50,6 @@ export const defaultHome: HomeContent = {
     cta: 'More About RizSync',
     sinceYear: '2021',
     sinceLabel: "Serving Dhaka's businesses & families since",
-    confidential: '100% Confidential',
     /** Photo for the navy panel; set to null to fall back to the star pattern. */
     photo: '/images/team/about-office.webp',
     photoAlt: 'The RizSync team reviewing client accounts in the Dhaka office',

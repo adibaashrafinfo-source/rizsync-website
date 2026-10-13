@@ -677,7 +677,6 @@ export const docs: Record<DocKey, DocConfig> = {
               { name: 'photoAlt', label: 'Photo description (alt text)', type: 'text' },
               { name: 'sinceYear', label: 'Badge year', type: 'text', half: true },
               { name: 'sinceLabel', label: 'Badge text', type: 'text', half: true },
-              { name: 'confidential', label: 'Floating card text', type: 'text' },
             ],
           },
         ],

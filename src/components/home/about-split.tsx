@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Check, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
 import { Eyebrow } from '@/components/ui/eyebrow';
@@ -49,16 +49,6 @@ export async function AboutSplit() {
                 {about.photo ? null : (
                   <div aria-hidden className="pattern-star absolute inset-0 opacity-[0.14]" />
                 )}
-              </div>
-
-              {/* Floating white card — top right */}
-              <div className="absolute top-6 right-0 flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-float sm:top-10 sm:px-5 sm:py-4">
-                <span className="flex h-10 w-10 items-center justify-center rounded-btn bg-orange-50 text-orange-icon sm:h-11 sm:w-11">
-                  <ShieldCheck aria-hidden className="h-5 w-5" strokeWidth={2} />
-                </span>
-                <span className="font-display text-sm font-bold text-navy sm:text-base">
-                  {about.confidential}
-                </span>
               </div>
 
               {/* Floating teal card — bottom right */}

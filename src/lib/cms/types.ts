@@ -182,7 +182,6 @@ export interface HomeContent {
     cta: string;
     sinceYear: string;
     sinceLabel: string;
-    confidential: string;
     photo: string;
     photoAlt: string;
   };
